@@ -48,6 +48,11 @@ func main() {
 		if err != nil {
 			return err
 		}
+		len := len(strings.Split(path, "/")) - len(strings.Split(*root, "/"))
+
+		if len > 1 {
+			return filepath.SkipDir
+		}
 
 		fileInfo := FileInfo{
 			Name:  info.Name(),
