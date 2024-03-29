@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -43,32 +44,56 @@ func main() {
 	}
 
 	var fileInfos []FileInfo
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 
 	err := filepath.Walk(*root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
+		len := len(strings.Split(path, "/")) - len(strings.Split(*root, "/"))
 
-		fileInfo := FileInfo{
-			Name:  info.Name(),
-			Size:  info.Size(),
-			IsDir: info.IsDir(),
+		if len > 1 {
+			return filepath.SkipDir
 		}
 
-		if fileInfo.IsDir {
-			fileInfo.Size, err = dirSize(path)
-			if err != nil {
-				return err
-			}
+		if info.IsDir() {
+			wg.Add(1)
+			go func(dirPath string) {
+				defer wg.Done()
+				size, err := dirSize(dirPath)
+				if err != nil {
+					fmt.Fprintln(os.Stderr, "Error calculating directory size:", err)
+					return
+				}
+				mu.Lock()
+				fileInfos = append(fileInfos, FileInfo{
+					Name:  info.Name(),
+					Size:  size,
+					IsDir: true,
+				})
+				mu.Unlock()
+
+			}(path)
+
+		} else {
+			mu.Lock()
+			fileInfos = append(fileInfos, FileInfo{
+				Name:  info.Name(),
+				Size:  info.Size(),
+				IsDir: info.IsDir(),
+			})
+			mu.Unlock()
 		}
 
-		fileInfos = append(fileInfos, fileInfo)
 		return nil
 	})
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error walking directory:", err)
 	}
+
+	wg.Wait()
 
 	if *sortType == "ASC" {
 		sort.Slice(fileInfos, func(i, j int) bool {
