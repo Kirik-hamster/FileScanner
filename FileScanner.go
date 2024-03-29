@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 )
 
 type FileInfo struct {
@@ -16,6 +17,8 @@ type FileInfo struct {
 }
 
 func main() {
+	start := time.Now()
+
 	root := flag.String("root", "", "file path")
 	sortType := flag.String("sort", "ASC", "type of sort")
 
@@ -85,6 +88,8 @@ func main() {
 		size := formatSize(fileInfo.Size)
 		fmt.Printf("%s -- %s -- %s\n", fileType, fileInfo.Name, size)
 	}
+	elapsed := time.Since(start)
+	fmt.Printf("\nProgram execution time: %s\n", elapsed)
 }
 
 // dirSize calculates the total size of all files in a directory.
