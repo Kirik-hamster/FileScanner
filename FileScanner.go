@@ -108,7 +108,7 @@ func dirSize(path string) (int64, error) {
 	return size, err
 }
 
-// formatSize formats the size in bytes to a human-readable string in megabytes, gigabytes, terabytes, or petabytes.
+// formatSize formats the size in bytes to a human-readable string in megabytes, gigabytes, or terabytes.
 func formatSize(size int64) string {
 	const (
 		KB = 1024
