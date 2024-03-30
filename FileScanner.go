@@ -55,7 +55,6 @@ func main() {
 		}
 
 		currentDepth := strings.Count(relPath, string(os.PathSeparator))
-		fmt.Printf("depth: %v, relPath: %v, path: %v\n", currentDepth, relPath, path)
 
 		if currentDepth > 0 {
 			return filepath.SkipDir
