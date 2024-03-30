@@ -51,9 +51,14 @@ func main() {
 		if err != nil {
 			return err
 		}
-		len := len(strings.Split(path, "/")) - len(strings.Split(*root, "/"))
 
-		if len > 1 {
+		lenRoot := strings.Split(*root, "/")
+		if lenRoot[len(lenRoot)-1] == "" {
+			lenRoot = lenRoot[:len(lenRoot)-1]
+		}
+
+		depth := len(strings.Split(path, "/")) - len(lenRoot)
+		if depth > 1 {
 			return filepath.SkipDir
 		}
 
