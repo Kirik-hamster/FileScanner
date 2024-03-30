@@ -48,9 +48,16 @@ func main() {
 		if err != nil {
 			return err
 		}
-		len := len(strings.Split(path, "/")) - len(strings.Split(*root, "/"))
 
-		if len > 1 {
+		relPath, err := filepath.Rel(*root, path)
+		if err != nil {
+			return err
+		}
+
+		currentDepth := strings.Count(relPath, string(os.PathSeparator))
+		fmt.Printf("depth: %v, relPath: %v, path: %v\n", currentDepth, relPath, path)
+
+		if currentDepth > 0 {
 			return filepath.SkipDir
 		}
 
