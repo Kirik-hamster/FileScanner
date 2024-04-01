@@ -11,10 +11,11 @@ import (
 	"time"
 )
 
+// хранит инвормацию о ткущем файле или директории
 type FileInfo struct {
-	Name  string
-	Size  int64
-	IsDir bool
+	Name  string //имя файла или директории
+	Size  int64  //размер файла или директороии
+	IsDir bool   //директория или нет
 }
 
 func main() {
@@ -62,7 +63,6 @@ func main() {
 		if currentDepth > 0 {
 			return filepath.SkipDir
 		}
-
 		if info.IsDir() {
 			wg.Add(1)
 			go func(dirPath string) {
@@ -73,23 +73,15 @@ func main() {
 					return
 				}
 				mu.Lock()
+				defer mu.Unlock()
 				fileInfos = append(fileInfos, FileInfo{
 					Name:  info.Name(),
 					Size:  size,
-					IsDir: true,
+					IsDir: info.IsDir(),
 				})
-				mu.Unlock()
 
 			}(path)
 
-		} else {
-			mu.Lock()
-			fileInfos = append(fileInfos, FileInfo{
-				Name:  info.Name(),
-				Size:  info.Size(),
-				IsDir: info.IsDir(),
-			})
-			mu.Unlock()
 		}
 
 		return nil
@@ -144,9 +136,9 @@ func dirSize(path string) (int64, error) {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() {
-			size += info.Size()
-		}
+
+		size += info.Size()
+
 		return nil
 	})
 	return size, err
