@@ -96,13 +96,13 @@ func main() {
 	for _, fileInfo := range fileInfos {
 		fileType := "File"
 		if fileInfo.IsDir {
-			fileType = "Dir"
+			fileType = "Dir "
 		}
 		size := formatSize(fileInfo.Size)
 		name := padStringToLength(fileInfo.Name, 30)
 		pad := strings.Repeat("-", 32)
 		fmt.Printf("%s -- %s -- %s\n", fileType, name, size)
-		fmt.Printf("%*s|%s|\n", 5, " ", pad)
+		fmt.Printf("%*s|%s|\n", 6, " ", pad)
 	}
 	elapsed := time.Since(start)
 	fmt.Printf("\nProgram execution time: %s\n", elapsed)
