@@ -10,10 +10,11 @@ import (
 	"time"
 )
 
+// хранит инвормацию о ткущем файле или директории
 type FileInfo struct {
-	Name  string
-	Size  int64
-	IsDir bool
+	Name  string //имя файла или директории
+	Size  int64  //размер файла или директороии
+	IsDir bool   //директория или нет
 }
 
 func main() {
@@ -126,9 +127,7 @@ func dirSize(path string) (int64, error) {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() {
-			size += info.Size()
-		}
+		size += info.Size()
 		return nil
 	})
 	return size, err
