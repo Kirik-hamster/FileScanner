@@ -67,13 +67,15 @@ func main() {
 		}
 
 		if fileInfo.IsDir {
+
 			fileInfo.Size, err = dirSize(path)
 			if err != nil {
-				return err
+				fmt.Fprintln(os.Stderr, "Error walking directory:", err)
 			}
 		}
 
 		fileInfos = append(fileInfos, fileInfo)
+
 		return nil
 	})
 
