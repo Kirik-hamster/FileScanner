@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -148,29 +151,45 @@ func formatSize(size int64) string {
 	}
 }
 
-// Обработчик для корневого пути
+// filesHandler handles HTTP requests for the root path.
 func filesHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
 	root := r.URL.Query().Get("root")
 	sort := r.URL.Query().Get("sort")
 	fileInfos := fileScanner(root, sort)
 
-	fmt.Fprintf(w, "Root: %s\nSort: %s", root, sort)
-
 	jsonData, err := json.Marshal(fileInfos)
 	if err != nil {
-		http.Error(w, "Ошибка сериализации в JSON", http.StatusInternalServerError)
+		http.Error(w, "Error serializing to JSON", http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
 
 	w.Write(jsonData)
-
 }
 
 func main() {
+	// Create a context with cancel to safely shut down the application
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Set up signal handlers
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	// Start a goroutine to handle signals
+	go func() {
+		select {
+		case <-sigChan:
+			fmt.Println("Signal received, shutting down...")
+			cancel() // Cancel the context when a signal is received
+		case <-ctx.Done():
+			// Context was cancelled, exit the goroutine
+		}
+	}()
+
 	http.HandleFunc("/files", filesHandler)
-	// Запустите HTTP-сервер на порту 8080
+	// Start the HTTP server on port 8080
 	fmt.Println("Starting server on port 8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
