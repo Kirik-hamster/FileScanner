@@ -101,7 +101,7 @@ func main() {
 		}
 		size := formatSize(fileInfo.Size)
 		name := padStringToLength(fileInfo.Name, 30)
-		pad := strings.Repeat("-", 32)
+		pad := strings.Repeat("*", 32)
 		fmt.Printf("%s -- %s -- %s\n", fileType, name, size)
 		fmt.Printf("%*s|%s|\n", 6, " ", pad)
 	}
@@ -154,3 +154,5 @@ func formatSize(size int64) string {
 		return fmt.Sprintf("%.2f TB", float64(size)/TB)
 	}
 }
+
+//123
