@@ -70,7 +70,7 @@ func main() {
 
 			fileInfo.Size, err = dirSize(path)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, "Error walking directory:", err)
+				fmt.Fprintln(os.Stderr, "Error calculating directory size:", err)
 			}
 		}
 
@@ -102,7 +102,7 @@ func main() {
 		name := padStringToLength(fileInfo.Name, 30)
 		pad := strings.Repeat("-", 32)
 		fmt.Printf("%s -- %s -- %s\n", fileType, name, size)
-		fmt.Printf("%*s|%s|\n", 6, " ", pad)
+		fmt.Printf("%*s|%s|\n", 5, " ", pad)
 	}
 	elapsed := time.Since(start)
 	fmt.Printf("\nProgram execution time: %s\n", elapsed)
