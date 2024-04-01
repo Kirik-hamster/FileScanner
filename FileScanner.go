@@ -97,10 +97,23 @@ func main() {
 			fileType = "Dir"
 		}
 		size := formatSize(fileInfo.Size)
-		fmt.Printf("%s -- %s -- %s\n", fileType, fileInfo.Name, size)
+		name := padStringToLength(fileInfo.Name, 30)
+		pad := strings.Repeat("-", 32)
+		fmt.Printf("%s -- %s -- %s\n", fileType, name, size)
+		fmt.Printf("%*s|%s|\n", 6, " ", pad)
 	}
 	elapsed := time.Since(start)
 	fmt.Printf("\nProgram execution time: %s\n", elapsed)
+}
+
+// padStringToLength дополняет строку пробелами до заданной длины и центрирует ее.
+// Если длина строки нечетная, одна сторона будет иметь один пробел больше, чтобы центрировать строку ровно по середине.
+func padStringToLength(s string, length int) string {
+	padding := length - len(s)
+	if padding%2 != 0 {
+		return fmt.Sprintf("%*s%s%*s", padding/2+1, "", s, padding/2, "")
+	}
+	return fmt.Sprintf("%*s%s%*s", padding/2, "", s, padding/2, "")
 }
 
 // dirSize calculates the total size of all files in a directory.
