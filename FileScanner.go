@@ -1,12 +1,14 @@
 package main
 
 import (
-	"flag"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -17,40 +19,21 @@ type FileInfo struct {
 	IsDir bool   //директория или нет
 }
 
-func main() {
+// fileScanner сканирует переданный путь root и выводит содржимое сортируя
+// по переданнаму параметру sortType который может быть равет DESC либо ASC
+func fileScanner(root string, sortType string) []FileInfo {
 	start := time.Now()
-
-	root := flag.String("root", "", "file path")
-	sortType := flag.String("sort", "ASC", "type of sort")
-
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Error: \n")
-		flag.PrintDefaults()
-		os.Exit(1)
-	}
-
-	flag.Parse()
-
-	if *root == "" {
-		flag.Usage()
-		os.Exit(1)
-	}
-
-	*sortType = strings.ToUpper(*sortType)
-	if *sortType != "ASC" && *sortType != "DESC" {
-		fmt.Fprintln(os.Stderr, "Error: Invalid sort type. Use --sort=ASC or --sort=DESC.")
-		flag.Usage()
-		os.Exit(1)
-	}
-
+	sortType = strings.ToUpper(sortType)
 	var fileInfos []FileInfo
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 
-	err := filepath.Walk(*root, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		relPath, err := filepath.Rel(*root, path)
+		relPath, err := filepath.Rel(root, path)
 		if err != nil {
 			return err
 		}
@@ -60,22 +43,26 @@ func main() {
 		if currentDepth > 0 {
 			return filepath.SkipDir
 		}
+		if info.IsDir() {
+			wg.Add(1)
+			go func(dirPath string) {
+				defer wg.Done()
+				size, err := dirSize(dirPath)
+				if err != nil {
+					fmt.Fprintln(os.Stderr, "Error calculating directory size:", err)
+					return
+				}
+				mu.Lock()
+				defer mu.Unlock()
+				fileInfos = append(fileInfos, FileInfo{
+					Name:  info.Name(),
+					Size:  size,
+					IsDir: info.IsDir(),
+				})
 
-		fileInfo := FileInfo{
-			Name:  info.Name(),
-			Size:  info.Size(),
-			IsDir: info.IsDir(),
+			}(path)
+
 		}
-
-		if fileInfo.IsDir {
-
-			fileInfo.Size, err = dirSize(path)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "Error calculating directory size:", err)
-			}
-		}
-
-		fileInfos = append(fileInfos, fileInfo)
 
 		return nil
 	})
@@ -84,7 +71,9 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Error walking directory:", err)
 	}
 
-	if *sortType == "ASC" {
+	wg.Wait()
+	fmt.Println(sortType)
+	if sortType == "ASC" {
 		sort.Slice(fileInfos, func(i, j int) bool {
 			return fileInfos[i].Size < fileInfos[j].Size
 		})
@@ -101,12 +90,14 @@ func main() {
 		}
 		size := formatSize(fileInfo.Size)
 		name := padStringToLength(fileInfo.Name, 30)
-		pad := strings.Repeat("*", 32)
+		pad := strings.Repeat("-", 32)
 		fmt.Printf("%s -- %s -- %s\n", fileType, name, size)
 		fmt.Printf("%*s|%s|\n", 6, " ", pad)
+
 	}
 	elapsed := time.Since(start)
 	fmt.Printf("\nProgram execution time: %s\n", elapsed)
+	return fileInfos
 }
 
 // padStringToLength дополняет строку пробелами до заданной длины и центрирует ее.
@@ -127,7 +118,9 @@ func dirSize(path string) (int64, error) {
 		if err != nil {
 			return err
 		}
+
 		size += info.Size()
+
 		return nil
 	})
 	return size, err
@@ -155,4 +148,32 @@ func formatSize(size int64) string {
 	}
 }
 
-//123
+// Обработчик для корневого пути
+func filesHandler(w http.ResponseWriter, r *http.Request) {
+
+	root := r.URL.Query().Get("root")
+	sort := r.URL.Query().Get("sort")
+	fileInfos := fileScanner(root, sort)
+
+	fmt.Fprintf(w, "Root: %s\nSort: %s", root, sort)
+
+	jsonData, err := json.Marshal(fileInfos)
+	if err != nil {
+		http.Error(w, "Ошибка сериализации в JSON", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	w.Write(jsonData)
+
+}
+
+func main() {
+	http.HandleFunc("/files", filesHandler)
+	// Запустите HTTP-сервер на порту 8080
+	fmt.Println("Starting server on port 8080")
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Println("Error starting server:", err)
+	}
+}
