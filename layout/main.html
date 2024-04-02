@@ -2,6 +2,7 @@
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="{{.CSSPath}}">
+        
         <title>FileScanner</title>
     </head>
     <body>
@@ -24,6 +25,9 @@
                 </div>
             </div>
         </div>
-       
+        <script>
+            var jsonData = "{{ .FilesJSON}}"
+        </script>
+        <script src="{{ .ScriptPath }}"></script>
     </body>
 </html>

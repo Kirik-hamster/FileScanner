@@ -45,9 +45,23 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 }
 func uiHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
 	htmlFilePath := "../layout/main.html"
 	cssFilePath := "../layout/style.css"
+	scriptFilePath := "../layout/script.js"
+
+	root := r.URL.Query().Get("root")
+	sort := r.URL.Query().Get("sort")
+	fileInfos, err := scanner.FileScanner(root, sort)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	jsonData, err := json.Marshal(fileInfos)
+	if err != nil {
+		http.Error(w, "Error serializing to JSON", http.StatusInternalServerError)
+		return
+	}
 
 	htmlFile, err := os.Open(htmlFilePath)
 	if err != nil {
@@ -63,9 +77,13 @@ func uiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	tmpl := template.Must(template.New("ui").Parse(string(htmlContent)))
 	data := struct {
-		CSSPath string
+		FilesJSON  string
+		CSSPath    string
+		ScriptPath string
 	}{
-		CSSPath: cssFilePath,
+		FilesJSON:  string(jsonData),
+		CSSPath:    cssFilePath,
+		ScriptPath: scriptFilePath,
 	}
 
 	err = tmpl.Execute(w, data)
@@ -120,6 +138,7 @@ func main() {
 			fmt.Printf("Ошибка при заупуске сервера: %s\n", err)
 			stop()
 		}
+
 	}()
 
 	fmt.Println("Сервер запущен на http://localhost:8080")
