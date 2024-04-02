@@ -1,17 +1,13 @@
-package main
+package scanner
 
 import (
-	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
-	"net/http"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -24,7 +20,7 @@ type FileInfo struct {
 
 // fileScanner сканирует переданный путь root и выводит содржимое сортируя
 // по переданнаму параметру sortType который может быть равет DESC либо ASC
-func fileScanner(root string, sortType string) []FileInfo {
+func FileScanner(root string, sortType string) ([]FileInfo, error) {
 	start := time.Now()
 	sortType = strings.ToUpper(sortType)
 	var fileInfos []FileInfo
@@ -71,7 +67,7 @@ func fileScanner(root string, sortType string) []FileInfo {
 	})
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error walking directory:", err)
+		return nil, errors.New(fmt.Sprintf("Error walking directory: %v", err))
 	}
 
 	wg.Wait()
@@ -100,7 +96,7 @@ func fileScanner(root string, sortType string) []FileInfo {
 	}
 	elapsed := time.Since(start)
 	fmt.Printf("\nProgram execution time: %s\n", elapsed)
-	return fileInfos
+	return fileInfos, nil
 }
 
 // padStringToLength дополняет строку пробелами до заданной длины и центрирует ее.
@@ -148,51 +144,5 @@ func formatSize(size int64) string {
 		return fmt.Sprintf("%.2f GB", float64(size)/GB)
 	default:
 		return fmt.Sprintf("%.2f TB", float64(size)/TB)
-	}
-}
-
-// filesHandler handles HTTP requests for the root path.
-func filesHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	root := r.URL.Query().Get("root")
-	sort := r.URL.Query().Get("sort")
-	fileInfos := fileScanner(root, sort)
-
-	jsonData, err := json.Marshal(fileInfos)
-	if err != nil {
-		http.Error(w, "Error serializing to JSON", http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(jsonData)
-}
-
-func main() {
-	// Create a context with cancel to safely shut down the application
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Set up signal handlers
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
-	// Start a goroutine to handle signals
-	go func() {
-		select {
-		case <-sigChan:
-			fmt.Println("Signal received, shutting down...")
-			cancel() // Cancel the context when a signal is received
-		case <-ctx.Done():
-			// Context was cancelled, exit the goroutine
-		}
-	}()
-
-	http.HandleFunc("/files", filesHandler)
-	// Start the HTTP server on port 8080
-	fmt.Println("Starting server on port 8080")
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		fmt.Println("Error starting server:", err)
 	}
 }
