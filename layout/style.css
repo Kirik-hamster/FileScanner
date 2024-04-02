@@ -20,6 +20,7 @@ body {
     margin-bottom: 3px;
     border-radius: 12px;
     box-sizing: border-box;
+    align-items: center;
 }
 .type, .name, .size{
     margin: 0 auto;
@@ -28,8 +29,8 @@ body {
     text-align: center;
 }
 .type, .size {
-    flex-basis: 10%;
+    flex-basis: 20%;
 }
 .name {
-    flex-basis: 60%;
+    flex-basis: 40%;
 }

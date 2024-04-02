@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"file-scanner/scanner"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -41,6 +43,36 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+func uiHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	htmlFilePath := "../layout/main.html"
+	cssFilePath := "../layout/style.css"
+
+	htmlFile, err := os.Open(htmlFilePath)
+	if err != nil {
+		http.Error(w, "Error to opening HTML file", http.StatusInternalServerError)
+		return
+	}
+	defer htmlFile.Close()
+
+	htmlContent := ""
+	scanner := bufio.NewScanner(htmlFile)
+	for scanner.Scan() {
+		htmlContent += scanner.Text() + "\n"
+	}
+	tmpl := template.Must(template.New("ui").Parse(string(htmlContent)))
+	data := struct {
+		CSSPath string
+	}{
+		CSSPath: cssFilePath,
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		http.Error(w, "Error executing template", http.StatusInternalServerError)
+	}
+}
 
 // получает путь до конфига и возвращает конфиг ввиде map
 func readConfigJson(src string) (map[string]interface{}, error) {
@@ -74,7 +106,9 @@ func main() {
 	defer stop()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/files", filesHandler)
+	mux.HandleFunc("/", filesHandler)
+	mux.HandleFunc("/ui/", uiHandler)
+	mux.Handle("/layout/", http.StripPrefix("/layout/", http.FileServer(http.Dir("../layout"))))
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", port),
