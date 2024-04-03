@@ -138,21 +138,21 @@ func dirSize(path string) (int64, error) {
 // formatSize formats the size in bytes to a human-readable string in megabytes, gigabytes, or terabytes.
 func formatSize(size int64) string {
 	const (
-		KB = 1024
-		MB = 1024 * KB
-		GB = 1024 * MB
-		TB = 1024 * GB
+		KB = 1000
+		MB = 1000 * KB
+		GB = 1000 * MB
+		TB = 1000 * GB
 	)
 	switch {
 	case size < KB:
-		return fmt.Sprintf("%.2f B", float64(size))
+		return fmt.Sprintf("%.1f B", float64(size))
 	case size < MB:
-		return fmt.Sprintf("%.2f KB", float64(size)/KB)
+		return fmt.Sprintf("%.1f KB", float64(size)/KB)
 	case size < GB:
-		return fmt.Sprintf("%.2f MB", float64(size)/MB)
+		return fmt.Sprintf("%.1f MB", float64(size)/MB)
 	case size < TB:
-		return fmt.Sprintf("%.2f GB", float64(size)/GB)
+		return fmt.Sprintf("%.1f GB", float64(size)/GB)
 	default:
-		return fmt.Sprintf("%.2f TB", float64(size)/TB)
+		return fmt.Sprintf("%.1f TB", float64(size)/TB)
 	}
 }

@@ -11,16 +11,17 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 )
 
 // filesHandler handles HTTP requests for the root path.
 func filesHandler(w http.ResponseWriter, r *http.Request) {
-	//w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	root := r.URL.Query().Get("root")
 	sort := r.URL.Query().Get("sort")
+
 	fileInfos, err := scanner.FileScanner(root, sort)
 	if err != nil {
 		fmt.Println(err)
@@ -33,6 +34,21 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	filesDir := "../files"
+
+	filePath := filepath.Join(filesDir, "jsonData.json")
+	file, err := os.Create(filePath)
+	if err != nil {
+		http.Error(w, "Ошибка при создании файла", http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	_, err = file.Write(jsonData)
+	if err != nil {
+		http.Error(w, "Ошибка при записи данных в файл", http.StatusInternalServerError)
+		return
+	}
 	htmlFile, err := os.Open("../ui/main.html")
 	if err != nil {
 		http.Error(w, "Error to opening HTML file", http.StatusInternalServerError)
@@ -40,19 +56,13 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer htmlFile.Close()
 
-	data := struct {
-		FilesJSON string
-	}{
-		FilesJSON: string(jsonData),
-	}
-
 	htmlContent := ""
 	scanner := bufio.NewScanner(htmlFile)
 	for scanner.Scan() {
 		htmlContent += scanner.Text() + "\n"
 	}
 	tmpl := template.Must(template.New("ui").Parse(string(htmlContent)))
-	err = tmpl.Execute(w, data)
+	err = tmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, "Error executing template", http.StatusInternalServerError)
 	}
@@ -92,6 +102,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", filesHandler)
+	mux.Handle("/files/", http.StripPrefix("/files/", http.FileServer(http.Dir("../files"))))
 	mux.Handle("/ui/", http.StripPrefix("/ui/", http.FileServer(http.Dir("../ui"))))
 
 	server := &http.Server{
@@ -107,7 +118,7 @@ func main() {
 
 	}()
 
-	fmt.Println("Сервер запущен на http://localhost:8080")
+	fmt.Printf("Сервер запущен на http://localhost:%v\n", port)
 
 	<-ctx.Done()
 
