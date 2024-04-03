@@ -18,6 +18,7 @@ type FileInfo struct {
 	Size      string //размер файла или директороии
 	SizeInt64 int64
 	IsDir     string //директория или нет
+	IsRoot    bool   //явлеется ли корневой папкой
 }
 
 // fileScanner сканирует переданный путь root и выводит содржимое сортируя
@@ -40,7 +41,6 @@ func FileScanner(root string, sortType string) ([]FileInfo, error) {
 		}
 
 		currentDepth := strings.Count(relPath, string(os.PathSeparator))
-
 		if currentDepth > 0 {
 			return filepath.SkipDir
 		}
@@ -60,6 +60,7 @@ func FileScanner(root string, sortType string) ([]FileInfo, error) {
 				Size:      strconv.FormatInt(size, 10),
 				SizeInt64: size,
 				IsDir:     strconv.FormatBool(info.IsDir()),
+				IsRoot:    path == root,
 			})
 
 		}(path)
@@ -72,7 +73,6 @@ func FileScanner(root string, sortType string) ([]FileInfo, error) {
 	}
 
 	wg.Wait()
-	fmt.Println(sortType)
 	if sortType == "ASC" {
 		sort.Slice(fileInfos, func(i, j int) bool {
 			return fileInfos[i].SizeInt64 < fileInfos[j].SizeInt64

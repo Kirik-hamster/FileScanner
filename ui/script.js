@@ -30,13 +30,17 @@ for (i=0; i<data.length; i++) {
     fileInfos.appendChild(fileInfo);
 
     container.appendChild(fileInfos);
-
+    if (data[i].IsRoot) fileInfo.className = "root"
     fileInfo.addEventListener('click', function() {
         let url = new URL(window.location.href);
-        let root = url.searchParams.get("root")
-        root += "/" + name.innerText + "/";
-        url.searchParams.set('root', root);
-        window.location.href = url
+        let root = url.searchParams.get("root");
+        let arrRoot = root.split("/");
+        if (arrRoot[arrRoot.length-1] == "") arrRoot.pop();
+        if (type.innerText == "Dir" && fileInfo.className != "root") {
+            root += "/" + name.innerText + "/";
+            url.searchParams.set('root', root);
+            window.location.href = url
+        }
     });
 }
 let back = document.querySelector(".back");

@@ -42,6 +42,23 @@ body {
 .fileInfo:hover #info {
     background-color: brown;
 }
+/*корневая папка*/ 
+.root {
+    border-radius: 5px;
+    background-color:coral;
+    margin-bottom: 3px;     
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 3px;
+    box-sizing: border-box;
+    align-items: center;
+    padding: 10px;
+}
+.root .type, .root .name, .root .size {
+    border-radius: 3px;
+    background-color:chocolate ;
+}
 /*кнопка назад*/
 .back {
     background-color: gray;
