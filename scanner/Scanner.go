@@ -57,8 +57,8 @@ func FileScanner(root string, sortType string) ([]FileInfo, error) {
 			defer mu.Unlock()
 			fileInfos = append(fileInfos, FileInfo{
 				Name:      info.Name(),
-				Size:      strconv.FormatInt(size, 10),
-				SizeInt64: size,
+				Size:      strconv.FormatInt(size-4096, 10),
+				SizeInt64: size - 4096,
 				IsDir:     strconv.FormatBool(info.IsDir()),
 				IsRoot:    path == root,
 			})
@@ -73,6 +73,12 @@ func FileScanner(root string, sortType string) ([]FileInfo, error) {
 	}
 
 	wg.Wait()
+	for i, fileInfo := range fileInfos {
+		if fileInfo.IsDir == "false" {
+			fileInfos[i].SizeInt64 += 4096
+			fileInfos[i].Size = strconv.FormatInt(fileInfos[i].SizeInt64, 10)
+		}
+	}
 	if sortType == "ASC" {
 		sort.Slice(fileInfos, func(i, j int) bool {
 			return fileInfos[i].SizeInt64 < fileInfos[j].SizeInt64
@@ -94,6 +100,7 @@ func FileScanner(root string, sortType string) ([]FileInfo, error) {
 		if err != nil {
 			log.Fatal("Ошибка преобразования string в int64:", err)
 		}
+
 		size := formatSize(sizeInfoInt64)
 		name := padStringToLength(fileInfo.Name, 30)
 		pad := strings.Repeat("-", 32)

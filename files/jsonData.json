@@ -1,1 +1,1 @@
-[{"Name":"go","Size":"177.7 MB","SizeInt64":177655464,"IsDir":"Dir ","IsRoot":true},{"Name":"pkg","Size":"132.9 MB","SizeInt64":132938656,"IsDir":"Dir ","IsRoot":false},{"Name":"bin","Size":"44.7 MB","SizeInt64":44712712,"IsDir":"Dir ","IsRoot":false}]
+[{"Name":"files","Size":"261.0 B","SizeInt64":261,"IsDir":"Dir ","IsRoot":true},{"Name":"jsonData.json","Size":"249.0 B","SizeInt64":249,"IsDir":"File","IsRoot":false},{"Name":"test.txt","Size":"12.0 B","SizeInt64":12,"IsDir":"File","IsRoot":false}]
