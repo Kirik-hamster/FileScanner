@@ -17,38 +17,8 @@ import (
 
 // filesHandler handles HTTP requests for the root path.
 func filesHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	root := r.URL.Query().Get("root")
-	sort := r.URL.Query().Get("sort")
-	fileInfos, err := scanner.FileScanner(root, sort)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	jsonData, err := json.Marshal(fileInfos)
-	if err != nil {
-		http.Error(w, "Error serializing to JSON", http.StatusInternalServerError)
-		return
-	}
-
-	written, err := w.Write(jsonData)
-	if err != nil {
-		http.Error(w, "Ошибка при записи данных в ответ", http.StatusInternalServerError)
-	}
-
-	if written != len(jsonData) {
-		http.Error(w, "Не все данные были записаны", http.StatusInternalServerError)
-		return
-	}
-}
-func uiHandler(w http.ResponseWriter, r *http.Request) {
+	//w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	htmlFilePath := "../layout/main.html"
-	cssFilePath := "../layout/style.css"
-	scriptFilePath := "../layout/script.js"
-
 	root := r.URL.Query().Get("root")
 	sort := r.URL.Query().Get("sort")
 	fileInfos, err := scanner.FileScanner(root, sort)
@@ -63,12 +33,18 @@ func uiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	htmlFile, err := os.Open(htmlFilePath)
+	htmlFile, err := os.Open("../ui/main.html")
 	if err != nil {
 		http.Error(w, "Error to opening HTML file", http.StatusInternalServerError)
 		return
 	}
 	defer htmlFile.Close()
+
+	data := struct {
+		FilesJSON string
+	}{
+		FilesJSON: string(jsonData),
+	}
 
 	htmlContent := ""
 	scanner := bufio.NewScanner(htmlFile)
@@ -76,20 +52,11 @@ func uiHandler(w http.ResponseWriter, r *http.Request) {
 		htmlContent += scanner.Text() + "\n"
 	}
 	tmpl := template.Must(template.New("ui").Parse(string(htmlContent)))
-	data := struct {
-		FilesJSON  string
-		CSSPath    string
-		ScriptPath string
-	}{
-		FilesJSON:  string(jsonData),
-		CSSPath:    cssFilePath,
-		ScriptPath: scriptFilePath,
-	}
-
 	err = tmpl.Execute(w, data)
 	if err != nil {
 		http.Error(w, "Error executing template", http.StatusInternalServerError)
 	}
+
 }
 
 // получает путь до конфига и возвращает конфиг ввиде map
@@ -125,8 +92,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", filesHandler)
-	mux.HandleFunc("/ui/", uiHandler)
-	mux.Handle("/layout/", http.StripPrefix("/layout/", http.FileServer(http.Dir("../layout"))))
+	mux.Handle("/ui/", http.StripPrefix("/ui/", http.FileServer(http.Dir("../ui"))))
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", port),
