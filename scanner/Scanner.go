@@ -1,11 +1,12 @@
 package scanner
 
 import (
-	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -13,9 +14,10 @@ import (
 
 // хранит инвормацию о ткущем файле или директории
 type FileInfo struct {
-	Name  string //имя файла или директории
-	Size  int64  //размер файла или директороии
-	IsDir bool   //директория или нет
+	Name      string //имя файла или директории
+	Size      string //размер файла или директороии
+	SizeInt64 int64
+	IsDir     string //директория или нет
 }
 
 // fileScanner сканирует переданный путь root и выводит содржимое сортируя
@@ -42,56 +44,64 @@ func FileScanner(root string, sortType string) ([]FileInfo, error) {
 		if currentDepth > 0 {
 			return filepath.SkipDir
 		}
-		if info.IsDir() {
-			wg.Add(1)
-			go func(dirPath string) {
-				defer wg.Done()
-				size, err := dirSize(dirPath)
-				if err != nil {
-					fmt.Fprintln(os.Stderr, "Error calculating directory size:", err)
-					return
-				}
-				mu.Lock()
-				defer mu.Unlock()
-				fileInfos = append(fileInfos, FileInfo{
-					Name:  info.Name(),
-					Size:  size,
-					IsDir: info.IsDir(),
-				})
 
-			}(path)
+		wg.Add(1)
+		go func(dirPath string) {
+			defer wg.Done()
+			size, err := dirSize(dirPath)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "Error calculating directory size:", err)
+				return
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			fileInfos = append(fileInfos, FileInfo{
+				Name:      info.Name(),
+				Size:      strconv.FormatInt(size, 10),
+				SizeInt64: size,
+				IsDir:     strconv.FormatBool(info.IsDir()),
+			})
 
-		}
+		}(path)
 
 		return nil
 	})
 
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Error walking directory: %v", err))
+		return nil, fmt.Errorf(fmt.Sprintf("Error walking directory: %v", err))
 	}
 
 	wg.Wait()
 	fmt.Println(sortType)
 	if sortType == "ASC" {
 		sort.Slice(fileInfos, func(i, j int) bool {
-			return fileInfos[i].Size < fileInfos[j].Size
+			return fileInfos[i].SizeInt64 < fileInfos[j].SizeInt64
 		})
 	} else {
 		sort.Slice(fileInfos, func(i, j int) bool {
-			return fileInfos[i].Size > fileInfos[j].Size
+			return fileInfos[i].SizeInt64 > fileInfos[j].SizeInt64
 		})
 	}
 
-	for _, fileInfo := range fileInfos {
+	for i, fileInfo := range fileInfos {
 		fileType := "File"
-		if fileInfo.IsDir {
+		if fileInfo.IsDir == "true" {
 			fileType = "Dir "
 		}
-		size := formatSize(fileInfo.Size)
+
+		sizeInfo := fileInfo.Size
+		sizeInfoInt64, err := strconv.ParseInt(sizeInfo, 10, 64)
+		if err != nil {
+			log.Fatal("Ошибка преобразования string в int64:", err)
+		}
+		size := formatSize(sizeInfoInt64)
 		name := padStringToLength(fileInfo.Name, 30)
 		pad := strings.Repeat("-", 32)
 		fmt.Printf("%s -- %s -- %s\n", fileType, name, size)
 		fmt.Printf("%*s|%s|\n", 6, " ", pad)
+
+		fileInfos[i].IsDir = fileType
+		fileInfos[i].Size = size
 
 	}
 	elapsed := time.Since(start)

@@ -2,6 +2,7 @@ body {
     margin:0;
     padding:0
 }
+/*вывод информаци о файлах*/
 .container {
     margin-top: 5px;
     width: 100%;
@@ -33,4 +34,24 @@ body {
 }
 .name {
     flex-basis: 40%;
+}
+.fileInfo:hover {
+    cursor: pointer;
+    background-color: rgba(255, 84, 84, 0.97);
+}
+.fileInfo:hover #info {
+    background-color: brown;
+}
+/*кнопка назад*/
+.back {
+    background-color: gray;
+    margin: 0 auto;
+    margin-bottom: 5px;
+    width: 50%;
+    text-align: center;
+    border-radius: 12px;
+}
+.back:hover {
+    cursor: pointer;
+    background-color: rgba(255, 84, 84, 0.97);
 }
