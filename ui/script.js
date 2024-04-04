@@ -1,5 +1,6 @@
+let port = 8080
 document.addEventListener('DOMContentLoaded', function() {
-    let dt =  fetch('http://localhost:8080/files/jsonData.json')
+    fetch("../files/jsonData.json")
         .then(response => {
             if (!response.ok) {
                 throw new Error('Ошибка HTTP: ' + response.status);
