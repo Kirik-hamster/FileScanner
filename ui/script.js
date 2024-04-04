@@ -1,30 +1,45 @@
 document.addEventListener('DOMContentLoaded',  async function() {
-    let url = new URL(window.location.href);
-    let params = new URLSearchParams(url.search)
-    let root = params.get('root')
-    let sort = params.get('sort')
-    if (root == null) root = ""
-    if (sort == null) sort = ""
-    url.href = url.protocol+"//"+url.hostname+":"+url.port+"/files"
+    let basePath = "/home";
+    async function sentGet(root, sort) {
+        
+        
+        if (root == null) root = ""
+        if (sort == null) sort = ""
+        let url = new URL(window.location.href);
 
-    let paramsFiles = new URLSearchParams();
-    paramsFiles.append('root', root);
-    paramsFiles.append('sort', sort);
-    url.search = paramsFiles.toString();
+        url.href = url.protocol+"//"+url.hostname+":"+url.port+"/files"
 
-    console.log(url.href)
-    try {
-        const response = await fetch(url.href, {
-            method: 'GET',
-        });
-        if (!response.ok) {
-            throw new Error(`Ошибка HTTP: ${response.status}`)
+        let paramsFiles = new URLSearchParams();
+        paramsFiles.append('root', root);
+        paramsFiles.append('sort', sort);
+        url.search = paramsFiles.toString();
+        try {
+            const response = await fetch(url.href, {
+                method: 'GET',
+            });
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP: ${response.status}`)
+            }
+
+            dataInfo = await response.json();
+            
+            
+            await updateDOM(dataInfo);
+            
+            return dataInfo
+        } catch (error) {
+            console.log("Ошибка при отправке запроса:", error)
         }
-        const dataInfo = await response.json();
-        const data = dataInfo.FilesInfos
+        return dataInfo
+    }
+
+    async function updateDOM(dataInfo) {
+        let container = document.querySelector(".container");
+        
+        container.innerHTML = '';
+        data = dataInfo.FilesInfos
         let time = document.querySelector(".time")
         time.innerText = formatTime(dataInfo.Time)
-        let container = document.querySelector(".container");
         for (i=0; i<data.length; i++) {
             let fileInfos = document.createElement("div");
             fileInfos.className = "fileInfos";
@@ -58,62 +73,91 @@ document.addEventListener('DOMContentLoaded',  async function() {
             fileInfo.addEventListener('click', function() {
                 let url = new URL(window.location.href);
                 let root = url.searchParams.get("root");
+                let sort = url.searchParams.get("sort");
+                if (sort == null) sort = ""
                 if (root != null && root != "") {
+                    console.log(root)
                     let arrRoot = root.split("/");
                     if (arrRoot[arrRoot.length-1] == "") arrRoot.pop();
                     if (type.innerText == "Dir" && fileInfo.className != "root") {
+                        console.log(name.innerText)
                         root += "/" + name.innerText + "/";
-                        url.searchParams.set('root', root);
-                        window.location.href = url;
+                        url.href += root;
+                        sentGet(root, sort);
                     }
                 } else if (root == null) {
-                    url.searchParams.append("root", "/home");
-                    window.location.href = url;
-                } else if (root == "") {
-                    root = "/home";
-                    url.searchParams.set('root', root);
-                    window.location.href = url;
+                    if (basePath != "/" + name.innerText) {
+                        basePath += "/" + name.innerText
+                        sentGet(basePath, sort);
+                    } else {
+                        sentGet(basePath, sort);
+                    }
+                    
                 }
             });
         }
-        let back = document.querySelector(".back");
-        back.addEventListener('click', function() {
-            let url = new URL(window.location.href);
-            let root = url.searchParams.get("root");
-            if (root != null) {
-                let arrRoot = root.split("/");
+        
+        
+    }
+    let back = document.querySelector(".back"); 
+    back.addEventListener('click', function() {
+        let url = new URL(window.location.href);
+        let root = url.searchParams.get("root");
+        let sort = url.searchParams.get("sort");
+        if (sort == null) sort = ""
+        if (root != null) {
+            
+            let arrRoot = root.split("/");
+            if (arrRoot[arrRoot.length-1] == "") arrRoot.pop();
+            arrRoot.pop();
+            root = arrRoot.join("/");
+            url.href += root;
+            sentGet(root, sort);
+        }
+        if (root == null) {
+            let arrRoot = basePath.split("/");
+
+            if ("/home" != arrRoot.join("/")) {
                 if (arrRoot[arrRoot.length-1] == "") arrRoot.pop();
                 arrRoot.pop();
-                root = arrRoot.join("/");
-                url.searchParams.set('root', root);
-                window.location.href = url;
+                basePath = arrRoot.join("/");
+                sentGet(basePath, sort);
             }
-        });
 
-    } catch (error) {
-        console.log("Ошибка при отправке запроса:", error)
+        
+        }
+    });
+    let url = new URL(window.location.href);
+    let root = url.searchParams.get("root");
+    let sort = url.searchParams.get("sort");
+    if (root != null) {
+        if (sort != null) sort = "";
+        await sentGet(root, sort);
+    } else {
+        await sentGet("","");
     }
 
+    function formatTime(nanoseconds) {
+        let time;
+        let unit;
+        if (nanoseconds < 1e3) {
+            time = nanoseconds 
+            unit = 'ns'
+        }
+        if (nanoseconds < 1e6) { 
+          time = nanoseconds / 1e3;
+          unit = 'μs';
+        } else if (nanoseconds < 1e9) { 
+          time = nanoseconds / 1e6; 
+          unit = 'ms';
+        } else { 
+          time = nanoseconds / 1e9; 
+          unit = 's';
+        }
+      
+        return `${time.toFixed(2)} ${unit}`;
+    }
 })
 
-function formatTime(nanoseconds) {
-    let time;
-    let unit;
-    if (nanoseconds < 1e3) {
-        time = nanoseconds 
-        unit = 'ns'
-    }
-    if (nanoseconds < 1e6) { 
-      time = nanoseconds / 1e3;
-      unit = 'μs';
-    } else if (nanoseconds < 1e9) { 
-      time = nanoseconds / 1e6; 
-      unit = 'ms';
-    } else { 
-      time = nanoseconds / 1e9; 
-      unit = 's';
-    }
-  
-    return `${time.toFixed(2)} ${unit}`;
-  }
+
 
