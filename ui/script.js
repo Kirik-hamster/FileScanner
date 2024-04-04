@@ -1,4 +1,3 @@
-let port = 8080
 document.addEventListener('DOMContentLoaded', function() {
     fetch("../files/jsonData.json")
         .then(response => {

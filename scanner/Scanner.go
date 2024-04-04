@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+type stringer interface {
+	string() string
+}
+
 // хранит инвормацию о ткущем файле или директории и время выполенения программы
 type FileInfo struct {
 	Name      string //имя файла или директории
@@ -20,6 +24,16 @@ type FileInfo struct {
 	IsDir     string //директория или нет
 	IsRoot    bool   //явлеется ли корневой папкой
 }
+
+func (f FileInfo) string() string {
+	name := padStringToLength(f.Name, 30)
+	pad := strings.Repeat("-", 32)
+	l1 := fmt.Sprintf("%s -- %s -- %s\n", f.IsDir, name, f.Size)
+	l2 := fmt.Sprintf("%*s|%s|", 6, " ", pad)
+	l := fmt.Sprintf("%s%s", l1, l2)
+	return l
+}
+
 type Info struct {
 	FilesInfos []FileInfo
 	Time       int64
@@ -77,11 +91,22 @@ func FileScanner(root string, sortType string) (Info, error) {
 	}
 
 	wg.Wait()
-	for i, fileInfo := range fileInfos {
-		if fileInfo.IsDir == "false" {
+	for i := range fileInfos {
+		if fileInfos[i].IsDir == "false" {
 			fileInfos[i].SizeInt64 += 4096
 			fileInfos[i].Size = strconv.FormatInt(fileInfos[i].SizeInt64, 10)
 		}
+		fileType := "File"
+		if fileInfos[i].IsDir == "true" {
+			fileType = "Dir "
+		}
+		fileInfos[i].IsDir = fileType
+		sizeInfo := fileInfos[i].Size
+		sizeInfoInt64, err := strconv.ParseInt(sizeInfo, 10, 64)
+		if err != nil {
+			log.Fatal("Ошибка преобразования string в int64:", err)
+		}
+		fileInfos[i].Size = formatSize(sizeInfoInt64)
 	}
 	if sortType == "ASC" {
 		sort.Slice(fileInfos, func(i, j int) bool {
@@ -93,34 +118,18 @@ func FileScanner(root string, sortType string) (Info, error) {
 		})
 	}
 
-	for i, fileInfo := range fileInfos {
-		fileType := "File"
-		if fileInfo.IsDir == "true" {
-			fileType = "Dir "
-		}
-
-		sizeInfo := fileInfo.Size
-		sizeInfoInt64, err := strconv.ParseInt(sizeInfo, 10, 64)
-		if err != nil {
-			log.Fatal("Ошибка преобразования string в int64:", err)
-		}
-
-		size := formatSize(sizeInfoInt64)
-		name := padStringToLength(fileInfo.Name, 30)
-		pad := strings.Repeat("-", 32)
-		fmt.Printf("%s -- %s -- %s\n", fileType, name, size)
-		fmt.Printf("%*s|%s|\n", 6, " ", pad)
-
-		fileInfos[i].IsDir = fileType
-		fileInfos[i].Size = size
-
+	for i := range fileInfos {
+		var String stringer = fileInfos[i]
+		fmt.Println(String.string())
 	}
+
 	elapsed := time.Since(start)
 	fmt.Printf("\nProgram execution time: %s\n", elapsed)
 	Info := Info{
 		FilesInfos: fileInfos,
 		Time:       elapsed.Nanoseconds(),
 	}
+
 	return Info, nil
 }
 
