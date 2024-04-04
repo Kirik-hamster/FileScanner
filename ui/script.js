@@ -85,10 +85,13 @@ document.addEventListener('DOMContentLoaded', function() {
 function formatTime(nanoseconds) {
     let time;
     let unit;
-  
+    if (nanoseconds < 1e3) {
+        time = nanoseconds 
+        unit = 'ns'
+    }
     if (nanoseconds < 1e6) { 
-      time = nanoseconds;
-      unit = 'ns';
+      time = nanoseconds / 1e3;
+      unit = 'μs';
     } else if (nanoseconds < 1e9) { 
       time = nanoseconds / 1e6; 
       unit = 'ms';
