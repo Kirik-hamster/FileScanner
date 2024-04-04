@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(dataJson => {   
-            const data = dataJson;
+            const data = dataJson.FilesInfos;
+            let time = document.querySelector(".time")
+            time.innerText = formatTime(dataJson.Time)
             let container = document.querySelector(".container");
             for (i=0; i<data.length; i++) {
                 let fileInfos = document.createElement("div");
@@ -42,12 +44,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileInfo.addEventListener('click', function() {
                     let url = new URL(window.location.href);
                     let root = url.searchParams.get("root");
-                    let arrRoot = root.split("/");
-                    if (arrRoot[arrRoot.length-1] == "") arrRoot.pop();
-                    if (type.innerText == "Dir" && fileInfo.className != "root") {
-                        root += "/" + name.innerText + "/";
+                    if (root != null && root != "") {
+                        let arrRoot = root.split("/");
+                        if (arrRoot[arrRoot.length-1] == "") arrRoot.pop();
+                        if (type.innerText == "Dir" && fileInfo.className != "root") {
+                            root += "/" + name.innerText + "/";
+                            url.searchParams.set('root', root);
+                            window.location.href = url;
+                        }
+                    } else if (root == null) {
+                        url.searchParams.append("root", "/home");
+                        window.location.href = url;
+                    } else if (root == "") {
+                        root = "/home";
                         url.searchParams.set('root', root);
-                        window.location.href = url
+                        window.location.href = url;
                     }
                 });
             }
@@ -55,12 +66,14 @@ document.addEventListener('DOMContentLoaded', function() {
             back.addEventListener('click', function() {
                 let url = new URL(window.location.href);
                 let root = url.searchParams.get("root");
-                let arrRoot = root.split("/");
-                if (arrRoot[arrRoot.length-1] == "") arrRoot.pop();
-                arrRoot.pop();
-                root = arrRoot.join("/");
-                url.searchParams.set('root', root);
-                window.location.href = url;
+                if (root != null) {
+                    let arrRoot = root.split("/");
+                    if (arrRoot[arrRoot.length-1] == "") arrRoot.pop();
+                    arrRoot.pop();
+                    root = arrRoot.join("/");
+                    url.searchParams.set('root', root);
+                    window.location.href = url;
+                }
             });
         })
         .catch(error => {
@@ -68,3 +81,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 })
+
+function formatTime(nanoseconds) {
+    let time;
+    let unit;
+  
+    if (nanoseconds < 1e6) { 
+      time = nanoseconds;
+      unit = 'ns';
+    } else if (nanoseconds < 1e9) { 
+      time = nanoseconds / 1e6; 
+      unit = 'ms';
+    } else { 
+      time = nanoseconds / 1e9; 
+      unit = 's';
+    }
+  
+    return `${time.toFixed(2)} ${unit}`;
+  }

@@ -21,7 +21,9 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	root := r.URL.Query().Get("root")
 	sort := r.URL.Query().Get("sort")
-
+	if root == "" {
+		root = "/home"
+	}
 	fileInfos, err := scanner.FileScanner(root, sort)
 	if err != nil {
 		fmt.Println(err)

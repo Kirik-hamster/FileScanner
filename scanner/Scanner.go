@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// хранит инвормацию о ткущем файле или директории
+// хранит инвормацию о ткущем файле или директории и время выполенения программы
 type FileInfo struct {
 	Name      string //имя файла или директории
 	Size      string //размер файла или директороии
@@ -20,10 +20,14 @@ type FileInfo struct {
 	IsDir     string //директория или нет
 	IsRoot    bool   //явлеется ли корневой папкой
 }
+type Info struct {
+	FilesInfos []FileInfo
+	Time       int64
+}
 
 // fileScanner сканирует переданный путь root и выводит содржимое сортируя
 // по переданнаму параметру sortType который может быть равет DESC либо ASC
-func FileScanner(root string, sortType string) ([]FileInfo, error) {
+func FileScanner(root string, sortType string) (Info, error) {
 	start := time.Now()
 	sortType = strings.ToUpper(sortType)
 	var fileInfos []FileInfo
@@ -69,7 +73,7 @@ func FileScanner(root string, sortType string) ([]FileInfo, error) {
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf(fmt.Sprintf("Error walking directory: %v", err))
+		return Info{}, fmt.Errorf(fmt.Sprintf("Error walking directory: %v", err))
 	}
 
 	wg.Wait()
@@ -113,7 +117,11 @@ func FileScanner(root string, sortType string) ([]FileInfo, error) {
 	}
 	elapsed := time.Since(start)
 	fmt.Printf("\nProgram execution time: %s\n", elapsed)
-	return fileInfos, nil
+	Info := Info{
+		FilesInfos: fileInfos,
+		Time:       elapsed.Nanoseconds(),
+	}
+	return Info, nil
 }
 
 // padStringToLength дополняет строку пробелами до заданной длины и центрирует ее.
