@@ -63,7 +63,6 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 	for scanner.Scan() {
 		htmlContent += scanner.Text() + "\n"
 	}
-	//
 	tmpl := template.Must(template.New("ui").Parse(string(htmlContent)))
 	err = tmpl.Execute(w, nil)
 	if err != nil {
