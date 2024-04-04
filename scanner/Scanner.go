@@ -12,19 +12,21 @@ import (
 	"time"
 )
 
+// stringer интрфей для получения строки с отформатироваными полями структуры
 type stringer interface {
 	string() string
 }
 
-// хранит инвормацию о ткущем файле или директории и время выполенения программы
+// хранит инвормацию о ткущем файле или директории
 type FileInfo struct {
 	Name      string //имя файла или директории
 	Size      string //размер файла или директороии
-	SizeInt64 int64
+	SizeInt64 int64  //размер файла или директороии в байтах
 	IsDir     string //директория или нет
 	IsRoot    bool   //явлеется ли корневой папкой
 }
 
+// string форматирует и выводит строку с информацией о файле или директори
 func (f FileInfo) string() string {
 	name := padStringToLength(f.Name, 30)
 	pad := strings.Repeat("-", 32)
@@ -34,6 +36,7 @@ func (f FileInfo) string() string {
 	return l
 }
 
+// хранит инвормацию о ткущем файле или директории и время выполенения программы
 type Info struct {
 	FilesInfos []FileInfo
 	Time       int64
@@ -143,7 +146,7 @@ func padStringToLength(s string, length int) string {
 	return fmt.Sprintf("%*s%s%*s", padding/2, "", s, padding/2, "")
 }
 
-// dirSize calculates the total size of all files in a directory.
+// dirSize считатет полный размер файла в папке
 func dirSize(path string) (int64, error) {
 	var size int64
 

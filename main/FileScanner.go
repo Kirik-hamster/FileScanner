@@ -6,19 +6,17 @@ import (
 	"encoding/json"
 	"file-scanner/scanner"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 )
 
 // filesHandler handles HTTP requests for the root path.
 func filesHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Content-Type", "application/json")
 	root := r.URL.Query().Get("root")
 	sort := r.URL.Query().Get("sort")
 	if root == "" {
@@ -36,39 +34,23 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filesDir := "../files"
+	w.Write(jsonData)
 
-	filePath := filepath.Join(filesDir, "jsonData.json")
-	file, err := os.Create(filePath)
-	if err != nil {
-		http.Error(w, "Ошибка при создании файла", http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
+}
+func htmlHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	_, err = file.Write(jsonData)
-	if err != nil {
-		http.Error(w, "Ошибка при записи данных в файл", http.StatusInternalServerError)
-		return
-	}
-	htmlFile, err := os.Open("../ui/main.html")
+	htmlFile, err := os.Open("../html/main.html")
 	if err != nil {
 		http.Error(w, "Error to opening HTML file", http.StatusInternalServerError)
 		return
 	}
 	defer htmlFile.Close()
 
-	htmlContent := ""
 	scanner := bufio.NewScanner(htmlFile)
 	for scanner.Scan() {
-		htmlContent += scanner.Text() + "\n"
+		w.Write(scanner.Bytes())
 	}
-	tmpl := template.Must(template.New("ui").Parse(string(htmlContent)))
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		http.Error(w, "Error executing template", http.StatusInternalServerError)
-	}
-
 }
 
 // получает путь до конфига и возвращает конфиг ввиде map
@@ -103,8 +85,8 @@ func main() {
 	defer stop()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", filesHandler)
-	mux.Handle("/files/", http.StripPrefix("/files/", http.FileServer(http.Dir("../files"))))
+	mux.HandleFunc("/files", filesHandler)
+	mux.HandleFunc("/", htmlHandler)
 	mux.Handle("/ui/", http.StripPrefix("/ui/", http.FileServer(http.Dir("../ui"))))
 
 	server := &http.Server{
