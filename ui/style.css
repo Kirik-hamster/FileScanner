@@ -19,8 +19,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    margin-bottom: 3px;
-    border-radius: 12px;
+    border-bottom: 1px solid;
     box-sizing: border-box;
     align-items: center;
 }
@@ -43,16 +42,15 @@ body {
 .fileInfo:hover #info {
     background-color: brown;
 }
+
 /*корневая папка*/ 
 .root {
+    border: 1px solid;
     user-select: none;
-    border-radius: 5px;
-    background-color:coral;
-    margin-bottom: 3px;     
+    background-color:coral; 
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    margin-bottom: 3px;
     box-sizing: border-box;
     align-items: center;
     padding: 10px;
@@ -71,7 +69,7 @@ body {
     margin-bottom: 5px;
     width: 50%;
     text-align: center;
-    border-radius: 12px;
+    border-radius: 3px;
 }
 .back:hover {
     cursor: pointer;
