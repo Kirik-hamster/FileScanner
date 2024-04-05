@@ -35,6 +35,7 @@ body {
 }
 .name {
     flex-basis: 40%;
+    
 }
 .fileInfo:hover {
     cursor: pointer;
