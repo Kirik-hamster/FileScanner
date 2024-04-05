@@ -76,3 +76,7 @@ body {
     cursor: pointer;
     background-color: rgba(255, 84, 84, 0.97);
 }
+/*загрузка*/
+.hiddenEl {
+    display:none;
+}

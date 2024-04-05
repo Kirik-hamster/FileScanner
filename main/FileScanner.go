@@ -27,6 +27,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 	}
+	fileInfos.BasePath = root
 
 	jsonData, err := json.Marshal(fileInfos)
 	if err != nil {
