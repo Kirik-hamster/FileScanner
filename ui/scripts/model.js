@@ -1,4 +1,5 @@
 //модель  
+
 async function SentGet(root, sort) {
     
     
@@ -6,7 +7,7 @@ async function SentGet(root, sort) {
     if (sort == null) sort = ""
     let url = new URL(window.location.href);
 
-    url.href = url.protocol+"//"+url.hostname+":"+url.port+"/files"
+    url.href = `${url.protocol}//${url.hostname}:${url.port}/files`
 
     let paramsFiles = new URLSearchParams();
     paramsFiles.append('root', root);
@@ -21,6 +22,12 @@ async function SentGet(root, sort) {
         }
 
         const dataInfo = await response.json();
+        const hidd = document.querySelector(".loading")
+        
+        if (hidd) {hidd.className = "hiddenEl";}
+      
+        
+        
         return dataInfo
     } catch (error) {
         console.error("Ошибка при отправке запроса:", error)

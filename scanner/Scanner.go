@@ -40,6 +40,7 @@ func (f FileInfo) string() string {
 type Info struct {
 	FilesInfos []FileInfo
 	Time       int64
+	BasePath   string
 }
 
 // fileScanner сканирует переданный путь root и выводит содржимое сортируя
@@ -131,6 +132,7 @@ func FileScanner(root string, sortType string) (Info, error) {
 	Info := Info{
 		FilesInfos: fileInfos,
 		Time:       elapsed.Nanoseconds(),
+		BasePath:   "",
 	}
 
 	return Info, nil

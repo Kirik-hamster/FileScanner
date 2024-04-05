@@ -1,7 +1,10 @@
 //вид
+import { fileInfoClick, backClick } from './controller.js';
+let CurrenPath = "/home";
 function UpdateDOM(dataInfo, basePath) {
     let currentPath = document.querySelector(".currenPath")
     currentPath.innerText = basePath;
+    CurrenPath = currentPath.innerText;
     let container = document.querySelector(".container");
     container.innerHTML = '';
     let data = dataInfo.FilesInfos
@@ -41,13 +44,23 @@ function UpdateDOM(dataInfo, basePath) {
             type.className = "rootType";
             name.className = "rootName";
             size.className = "rootSize";
-            
-            
         }
+
+        fileInfo.addEventListener('click', async function() {
+
+            await fileInfoClick(fileInfo, basePath)
+
+        })
+
     }
+
+    return currentPath
+
+
     
     
 }
+
 function formatTime(nanoseconds) {
     let time;
     let unit;
@@ -69,4 +82,4 @@ function formatTime(nanoseconds) {
     return `${time.toFixed(2)} ${unit}`;
 }
 
-export { UpdateDOM }
+export { UpdateDOM, CurrenPath}
