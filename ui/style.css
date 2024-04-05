@@ -14,6 +14,7 @@ body {
     margin: 0 auto;
 }
 .fileInfo {
+    user-select: none;
     background-color: gray;
     display: flex;
     flex-wrap: wrap;
@@ -44,6 +45,7 @@ body {
 }
 /*корневая папка*/ 
 .root {
+    user-select: none;
     border-radius: 5px;
     background-color:coral;
     margin-bottom: 3px;     
@@ -63,6 +65,7 @@ body {
 }
 /*кнопка назад*/
 .back {
+    user-select: none;
     background-color: gray;
     margin: 0 auto;
     margin-bottom: 5px;
