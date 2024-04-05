@@ -22,6 +22,7 @@ body {
     border-bottom: 1px solid;
     box-sizing: border-box;
     align-items: center;
+
 }
 .type, .name, .size{
     margin: 0 auto;

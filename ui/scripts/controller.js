@@ -21,41 +21,49 @@ document.addEventListener('DOMContentLoaded',  async function() {
     }
     
     let container = document.querySelector(".container");
-    container.addEventListener('click', async function(){
-        for (let i = 0; i < container.children.length; i++) {
-            container.children[i].addEventListener('click', async function() {
-                let fileInfos = container.children[i];
-                let name = fileInfos.querySelector(".name")
-                let url = new URL(window.location.href);
-                let root = url.searchParams.get("root");
-                let sort = url.searchParams.get("sort");
-                if (sort == null) sort = "";
-    
-                if (root != null && root != "") {
-                    console.log(root)
-                    let arrRoot = root.split("/");
-                    if (arrRoot[arrRoot.length-1] == "") arrRoot.pop();
-                    if (type.innerText == "Dir" && fileInfos.className != "root") {
-                        console.log(name.innerHTML)
-                        root += "/" + name.innerText + "/";
-                        let dataInfo = await SentGet(basePath, sort)
-                        UpdateDOM(dataInfo);
-                    }
-                } else if (root == null || root == "") {
-                    
-                    if (basePath != "/" + name.innerText) {
+    container.addEventListener('click', async function(event){
+  
+        if (event.target.classList.contains("fileInfo") ||
+            event.target.classList.contains("name") ||
+            event.target.classList.contains("type") ||
+            event.target.classList.contains("size")) {
+        
+            for (let i = 0; i < container.children.length; i++) {
+                container.children[i].addEventListener('click', async function() {
+                    let fileInfos = container.children[i];
+                    let name = fileInfos.querySelector(".name")
+                    let url = new URL(window.location.href);
+                    let root = url.searchParams.get("root");
+                    let sort = url.searchParams.get("sort");
+                    if (sort == null) sort = "";
+        
+                    if (root != null && root != "") {
+                        console.log(root)
+                        let arrRoot = root.split("/");
+                        if (arrRoot[arrRoot.length-1] == "") arrRoot.pop();
+                        if (type.innerText == "Dir" && fileInfos.className != "root") {
+                            console.log(name.innerHTML)
+                            root += "/" + name.innerText + "/";
+                            let dataInfo = await SentGet(basePath, sort)
+                            UpdateDOM(dataInfo);
+                        }
+                    } else if (root == null || root == "") {
                         
-                        basePath += "/" + name.innerText
-                        let dataInfo = await SentGet(basePath, sort)
-                        UpdateDOM(dataInfo);
-                    } else {
-                        let dataInfo = await SentGet(basePath, sort)
-                        UpdateDOM(dataInfo);
+                        if (basePath != "/" + name.innerText) {
+                            
+                            basePath += "/" + name.innerText
+                            let dataInfo = await SentGet(basePath, sort)
+                            UpdateDOM(dataInfo);
+                        } else {
+                            let dataInfo = await SentGet(basePath, sort)
+                            UpdateDOM(dataInfo);
+                        }
+                        
                     }
-                    
-                }
-            })
+                })
+            }
         }
+
     })
     
 
