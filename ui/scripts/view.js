@@ -1,6 +1,7 @@
 //вид
-function UpdateDOM(dataInfo) {
-
+function UpdateDOM(dataInfo, basePath) {
+    let currentPath = document.querySelector(".currenPath")
+    currentPath.innerText = basePath;
     let container = document.querySelector(".container");
     container.innerHTML = '';
     let data = dataInfo.FilesInfos
@@ -35,7 +36,14 @@ function UpdateDOM(dataInfo) {
         fileInfos.appendChild(fileInfo);
 
         container.appendChild(fileInfos);
-        if (data[i].IsRoot) {fileInfo.className = "root";}
+        if (data[i].IsRoot) {
+            fileInfo.className = "root";
+            type.className = "rootType";
+            name.className = "rootName";
+            size.className = "rootSize";
+            
+            
+        }
     }
     
     

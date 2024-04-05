@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded',  async function() {
         dataInfo = await SentGet(basePath, sort);
     }
     if (dataInfo) {
-        UpdateDOM(dataInfo);
+        UpdateDOM(dataInfo, basePath);
     } else {
         console.error("No data to update the DOM");
     }
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded',  async function() {
                             console.log(name.innerHTML)
                             root += "/" + name.innerText + "/";
                             let dataInfo = await SentGet(basePath, sort)
-                            UpdateDOM(dataInfo);
+                            UpdateDOM(dataInfo, basePath);
                         }
                     } else if (root == null || root == "") {
                         
@@ -53,10 +53,10 @@ document.addEventListener('DOMContentLoaded',  async function() {
                             
                             basePath += "/" + name.innerText
                             let dataInfo = await SentGet(basePath, sort)
-                            UpdateDOM(dataInfo);
+                            UpdateDOM(dataInfo, basePath);
                         } else {
                             let dataInfo = await SentGet(basePath, sort)
-                            UpdateDOM(dataInfo);
+                            UpdateDOM(dataInfo, basePath);
                         }
                         
                     }
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded',  async function() {
             arrRoot.pop();
             root = arrRoot.join("/");
             let dataInfo = await SentGet(basePath, sort)
-            UpdateDOM(dataInfo);
+            UpdateDOM(dataInfo, basePath);
         }
         if (root == null) {
             let arrRoot = basePath.split("/");
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded',  async function() {
                 arrRoot.pop();
                 basePath = arrRoot.join("/");
                 let dataInfo = await SentGet(basePath, sort)
-                UpdateDOM(dataInfo);
+                UpdateDOM(dataInfo, basePath);
             }
 
         
