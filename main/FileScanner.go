@@ -16,6 +16,7 @@ import (
 
 // filesHandler handles HTTP requests for the root path.
 func filesHandler(w http.ResponseWriter, r *http.Request) {
+
 	w.Header().Set("Content-Type", "application/json")
 	root := r.URL.Query().Get("root")
 	sort := r.URL.Query().Get("sort")
@@ -86,7 +87,7 @@ func main() {
 	defer stop()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/files", filesHandler)
+	mux.HandleFunc("/files/", filesHandler)
 	mux.HandleFunc("/", htmlHandler)
 	mux.Handle("/ui/", http.StripPrefix("/ui/", http.FileServer(http.Dir("../ui"))))
 

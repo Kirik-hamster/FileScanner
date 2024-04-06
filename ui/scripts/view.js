@@ -1,5 +1,5 @@
 //вид
-import { fileInfoClick, backClick } from './controller.js';
+import { fileInfoClick } from './controller.js';
 let CurrenPath = "/home";
 function UpdateDOM(dataInfo, basePath) {
     let currentPath = document.querySelector(".currenPath")

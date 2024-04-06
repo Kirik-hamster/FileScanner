@@ -1,11 +1,10 @@
 {
     "compilerOptions": {
-      "target": "es5",
-      "module": "commonjs",
-      "outDir": "./ui/scripts",
+      "target": "ES6",
+      "module":"esnext",
+      "outDir": "./ui/scriptsFromTs",
       "strict": true,
-      "esModuleInterop": true,
-      "lib": ["es6", "dom"]
+      "lib": ["ES6", "dom"]
     },
     "include": ["ts/*.ts"],
   }
