@@ -1,4 +1,8 @@
 function UpdateDOM(dataInfo, basePath) {
+    if (dataInfo == undefined) {
+        console.error("JSON данных не найден");
+        return;
+    }
     const currentPath = document.querySelector(".currenPath");
     if (currentPath != null) {
         currentPath.innerText = basePath;
@@ -7,7 +11,10 @@ function UpdateDOM(dataInfo, basePath) {
     if (container != null) {
         container.innerHTML = "";
     }
-    const data = dataInfo.FileInfos;
+    const data = dataInfo.FilesInfos;
+    if (data == undefined) {
+        console.error("Информация о файлах и папках не найдена из JSON");
+    }
     const time = document.querySelector(".time");
     if (time != null) {
         time.innerText = dataInfo.Time;

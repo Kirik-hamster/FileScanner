@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
       "target": "ES6",
-      "module":"esnext",
+      "module":"ES6",
       "outDir": "./ui/scriptsFromTs",
       "strict": true,
       "lib": ["ES6", "dom"]

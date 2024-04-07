@@ -1,4 +1,8 @@
 function UpdateDOM(dataInfo:any, basePath:string) {
+    if (dataInfo == undefined) {
+        console.error("JSON данных не найден");
+        return
+    }
     const currentPath: HTMLDivElement | null = document.querySelector(".currenPath");
     if (currentPath != null) {
         currentPath.innerText = basePath;
@@ -7,7 +11,10 @@ function UpdateDOM(dataInfo:any, basePath:string) {
     if (container != null) {
         container.innerHTML = "";
     }
-    const data: any = dataInfo.FileInfos;
+    const data: any = dataInfo.FilesInfos;
+    if (data == undefined) {
+        console.error("Информация о файлах и папках не найдена из JSON");
+    }
     const time: HTMLDivElement | null  = document.querySelector(".time")
     if (time != null) {
         time.innerText = dataInfo.Time;
