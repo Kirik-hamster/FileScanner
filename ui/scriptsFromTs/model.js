@@ -7,25 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { UpdateDOM } from "./view.js";
-document.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void 0, function* () {
-    const body = document.querySelector("body");
-    if (body != null) {
-        body.addEventListener('click', () => __awaiter(void 0, void 0, void 0, function* () {
-            try {
-                let infoData = yield SentGet("/home/kir/go", "");
-                console.log(infoData);
-                if (infoData == undefined) {
-                    console.log("lox");
-                }
-                UpdateDOM(infoData, "");
-            }
-            catch (error) {
-                console.error('Ошибка при получении данных:', error);
-            }
-        }));
-    }
-}));
 function SentGet(root, sort) {
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(window.location.href);
@@ -42,11 +23,15 @@ function SentGet(root, sort) {
                 throw new Error(`Ошибка HTTP: ${response.status}`);
             }
             const dataInfo = yield response.json();
+            const hidd = document.querySelector(".loading");
+            if (hidd != null) {
+                hidd.className = "hiddenEl";
+            }
             return dataInfo;
-            //console.log(dataInfo);
         }
         catch (error) {
             console.error("Ошибка при отправке запроса:", error);
+            return null;
         }
     });
 }

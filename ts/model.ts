@@ -1,24 +1,3 @@
-import { UpdateDOM } from "./view.js";
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const body: HTMLBodyElement | null = document.querySelector("body");
-    if (body != null)  {
-        body.addEventListener('click', async () => {
-            try {
-                let infoData: any = await SentGet("/home/kir/go", "");
-                console.log(infoData);
-                if (infoData == undefined) {
-                    console.log("lox");
-                }
-                UpdateDOM(infoData, "");
-            } catch (error) {
-                console.error('Ошибка при получении данных:', error);
-            }
-
-        })
-    }
-})
-
 async function SentGet(root: string, sort: string)  {
 
     const url: URL = new URL(window.location.href);
@@ -36,11 +15,19 @@ async function SentGet(root: string, sort: string)  {
         if (!response.ok) {
             throw new Error(`Ошибка HTTP: ${response.status}`);
         }
+
+        
+
         const dataInfo = await response.json();
-        return dataInfo
-        //console.log(dataInfo);
+
+        const hidd: HTMLDivElement | null = document.querySelector(".loading")
+        
+        if (hidd != null) {hidd.className = "hiddenEl";}
+        return dataInfo;
+        
     } catch (error) {
         console.error("Ошибка при отправке запроса:", error);
+        return null;
     }
 
 }

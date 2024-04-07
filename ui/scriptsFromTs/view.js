@@ -1,3 +1,14 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+import { fileInfoClick } from './controller.js';
+let curPath = "/home";
 function UpdateDOM(dataInfo, basePath) {
     if (dataInfo == undefined) {
         console.error("JSON данных не найден");
@@ -6,6 +17,7 @@ function UpdateDOM(dataInfo, basePath) {
     const currentPath = document.querySelector(".currenPath");
     if (currentPath != null) {
         currentPath.innerText = basePath;
+        curPath = currentPath.innerText;
     }
     const container = document.querySelector(".container");
     if (container != null) {
@@ -17,7 +29,7 @@ function UpdateDOM(dataInfo, basePath) {
     }
     const time = document.querySelector(".time");
     if (time != null) {
-        time.innerText = dataInfo.Time;
+        time.innerText = formatTime(dataInfo.Time);
     }
     for (let i = 0; i < data.length; i++) {
         const fileInfos = document.createElement("div");
@@ -49,7 +61,32 @@ function UpdateDOM(dataInfo, basePath) {
             name.className = "rootName";
             size.className = "rootSize";
         }
+        fileInfo.addEventListener('click', function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                yield fileInfoClick(fileInfo, basePath);
+            });
+        });
     }
 }
-console.log(123123);
-export { UpdateDOM };
+function formatTime(nanoseconds) {
+    let time;
+    let unit;
+    if (nanoseconds < 1e3) {
+        time = nanoseconds;
+        unit = 'ns';
+    }
+    if (nanoseconds < 1e6) {
+        time = nanoseconds / 1e3;
+        unit = 'μs';
+    }
+    else if (nanoseconds < 1e9) {
+        time = nanoseconds / 1e6;
+        unit = 'ms';
+    }
+    else {
+        time = nanoseconds / 1e9;
+        unit = 's';
+    }
+    return `${time.toFixed(2)} ${unit}`;
+}
+export { UpdateDOM, curPath };
