@@ -1,5 +1,5 @@
-import { SentGet } from "./model.js";
-import { UpdateDOM, curPath } from "./view.js";
+import { SentGet } from "./model";
+import { UpdateDOM, curPath } from "./view";
 
 document.addEventListener('DOMContentLoaded', async () => {
 

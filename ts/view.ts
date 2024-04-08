@@ -1,4 +1,4 @@
-import { fileInfoClick } from './controller.js';
+import { fileInfoClick } from './controller';
 let curPath: string = "/home";
 function UpdateDOM(dataInfo:any, basePath:string) {
     if (dataInfo === undefined) {

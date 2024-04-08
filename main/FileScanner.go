@@ -42,7 +42,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 func htmlHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	htmlFile, err := os.Open("../html/main.html")
+	htmlFile, err := os.Open("../html/index.html")
 	if err != nil {
 		http.Error(w, "Error to opening HTML file", http.StatusInternalServerError)
 		return
