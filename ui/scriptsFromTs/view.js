@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { fileInfoClick } from './controller.js';
 let curPath = "/home";
 function UpdateDOM(dataInfo, basePath) {
-    if (dataInfo == undefined) {
+    if (dataInfo === undefined) {
         console.error("JSON данных не найден");
         return;
     }
@@ -24,7 +24,7 @@ function UpdateDOM(dataInfo, basePath) {
         container.innerHTML = "";
     }
     const data = dataInfo.FilesInfos;
-    if (data == undefined) {
+    if (data === undefined) {
         console.error("Информация о файлах и папках не найдена из JSON");
     }
     const time = document.querySelector(".time");
@@ -61,11 +61,9 @@ function UpdateDOM(dataInfo, basePath) {
             name.className = "rootName";
             size.className = "rootSize";
         }
-        fileInfo.addEventListener('click', function () {
-            return __awaiter(this, void 0, void 0, function* () {
-                yield fileInfoClick(fileInfo, basePath);
-            });
-        });
+        fileInfo.addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
+            yield fileInfoClick(fileInfo, basePath);
+        }));
     }
 }
 function formatTime(nanoseconds) {

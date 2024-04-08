@@ -16,15 +16,12 @@ async function SentGet(root: string, sort: string)  {
             throw new Error(`Ошибка HTTP: ${response.status}`);
         }
 
-        
 
         const dataInfo = await response.json();
 
-        const hidd: HTMLDivElement | null = document.querySelector(".loading")
-        
+        const hidd: HTMLDivElement | null = document.querySelector(".loading");
         if (hidd != null) {hidd.className = "hiddenEl";}
         return dataInfo;
-        
     } catch (error) {
         console.error("Ошибка при отправке запроса:", error);
         return null;

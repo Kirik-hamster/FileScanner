@@ -1,7 +1,7 @@
 import { fileInfoClick } from './controller.js';
 let curPath: string = "/home";
 function UpdateDOM(dataInfo:any, basePath:string) {
-    if (dataInfo == undefined) {
+    if (dataInfo === undefined) {
         console.error("JSON данных не найден");
         return
     }
@@ -15,7 +15,7 @@ function UpdateDOM(dataInfo:any, basePath:string) {
         container.innerHTML = "";
     }
     const data: any = dataInfo.FilesInfos;
-    if (data == undefined) {
+    if (data === undefined) {
         console.error("Информация о файлах и папках не найдена из JSON");
     }
     const time: HTMLDivElement | null  = document.querySelector(".time")
@@ -59,7 +59,7 @@ function UpdateDOM(dataInfo:any, basePath:string) {
             name.className = "rootName";
             size.className = "rootSize";
         }
-        fileInfo.addEventListener('click', async function() {
+        fileInfo.addEventListener('click', async () => {
 
             await fileInfoClick(fileInfo, basePath)
 
@@ -71,20 +71,20 @@ function formatTime(nanoseconds: number): string {
     let time;
     let unit;
     if (nanoseconds < 1e3) {
-        time = nanoseconds 
+        time = nanoseconds
         unit = 'ns'
     }
-    if (nanoseconds < 1e6) { 
+    if (nanoseconds < 1e6) {
         time = nanoseconds / 1e3;
         unit = 'μs';
-    } else if (nanoseconds < 1e9) { 
-        time = nanoseconds / 1e6; 
+    } else if (nanoseconds < 1e9) {
+        time = nanoseconds / 1e6;
         unit = 'ms';
-    } else { 
-        time = nanoseconds / 1e9; 
+    } else {
+        time = nanoseconds / 1e9;
         unit = 's';
     }
-    
+
     return `${time.toFixed(2)} ${unit}`;
 }
 export { UpdateDOM, curPath }

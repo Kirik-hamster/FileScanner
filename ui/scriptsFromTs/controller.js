@@ -10,16 +10,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { SentGet } from "./model.js";
 import { UpdateDOM, curPath } from "./view.js";
 document.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void 0, function* () {
-    let dataInfo = yield SentGet("", "");
+    const dataInfo = yield SentGet("", "");
     let basePath;
-    if (dataInfo != undefined) {
+    if (dataInfo !== undefined) {
         basePath = dataInfo.BasePath;
         UpdateDOM(dataInfo, basePath);
     }
     else {
         console.error("No data to update the DOM");
     }
-    let back = document.querySelector(".back");
+    const back = document.querySelector(".back");
     if (back != null) {
         back.addEventListener('click', (e) => __awaiter(void 0, void 0, void 0, function* () {
             e.preventDefault();
@@ -29,35 +29,35 @@ document.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, vo
 }));
 function backClick(basePath) {
     return __awaiter(this, void 0, void 0, function* () {
-        let sort = "";
-        if (basePath != "/home") {
-            let arrRoot = basePath.split("/");
-            if (arrRoot[arrRoot.length - 1] == "")
+        const sort = "";
+        if (basePath !== "/home") {
+            const arrRoot = basePath.split("/");
+            if (arrRoot[arrRoot.length - 1] === "")
                 arrRoot.pop();
             arrRoot.pop();
             basePath = arrRoot.join("/");
-            let dataInfo = yield SentGet(basePath, sort);
+            const dataInfo = yield SentGet(basePath, sort);
             UpdateDOM(dataInfo, basePath);
         }
         else {
-            let dataInfo = yield SentGet(basePath, sort);
+            const dataInfo = yield SentGet(basePath, sort);
             UpdateDOM(dataInfo, basePath);
         }
     });
 }
 function fileInfoClick(fileInfo, basePath) {
     return __awaiter(this, void 0, void 0, function* () {
-        let fileInfos = fileInfo;
-        let name = fileInfos.querySelector(".name");
-        let sort = "";
+        const fileInfos = fileInfo;
+        const name = fileInfos.querySelector(".name");
+        const sort = "";
         if (name != null) {
-            if (basePath != "/" + name.innerText) {
+            if (basePath !== "/" + name.innerText) {
                 basePath += "/" + name.innerText;
-                let dataInfo = yield SentGet(basePath, sort);
+                const dataInfo = yield SentGet(basePath, sort);
                 UpdateDOM(dataInfo, basePath);
             }
             else {
-                let dataInfo = yield SentGet(basePath, sort);
+                const dataInfo = yield SentGet(basePath, sort);
                 UpdateDOM(dataInfo, basePath);
             }
         }
