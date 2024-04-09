@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"file-scanner/scanner"
@@ -35,10 +36,19 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error serializing to JSON", http.StatusInternalServerError)
 		return
 	}
+	resp, err := http.Post("http://localhost/Statistic/post-statistic.php", "applicaton/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println("Ошибка при отправке запроса:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("Зарос успешно отправлен, статус ответа:", resp.Status)
 
 	w.Write(jsonData)
 
 }
+
 func htmlHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
