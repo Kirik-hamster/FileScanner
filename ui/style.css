@@ -2,6 +2,13 @@ body {
     margin:0;
     padding:0
 }
+.timePathStatistic {
+    display: flex;
+    justify-content: center;
+}
+.time, .currentPath, .statistic {
+    flex: 1;
+}
 /*вывод информаци о файлах*/
 .container {
     margin-top: 5px;

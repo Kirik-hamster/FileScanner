@@ -21,7 +21,7 @@ type StatisticInfo struct {
 	SizeInt64   int64  //размер файла или директории в байтах
 	Size        string //размер файла отформатированный
 	ElapsedTime int64  //время выполнения
-	date        string //дата выолнения
+	Date        string //дата выолнения
 }
 
 // filesHandler handles HTTP requests for the root path.
@@ -46,16 +46,16 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	go func(fileInfos scanner.Info) {
-		var Statistic []StatisticInfo
+		var Statistic StatisticInfo
 		for i := range fileInfos.FilesInfos {
 			if fileInfos.FilesInfos[i].IsRoot {
-				Statistic = append(Statistic, StatisticInfo{
+				Statistic = StatisticInfo{
 					Path:        fileInfos.BasePath,
 					SizeInt64:   fileInfos.FilesInfos[i].SizeInt64,
 					Size:        fileInfos.FilesInfos[i].Size,
 					ElapsedTime: fileInfos.Time,
-					date:        time.Now().Format("2006-01-02 15:04:05"),
-				})
+					Date:        time.Now().Format("2006-01-02 15:04:05"),
+				}
 			}
 		}
 		jsonStatistic, err := json.Marshal(Statistic)
@@ -63,7 +63,9 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error serializing to JSON", http.StatusInternalServerError)
 			return
 		}
-		resp, err := http.Post("http://localhost/Statistic", "applicaton/json", bytes.NewBuffer(jsonStatistic))
+
+		fmt.Printf("%v", Statistic)
+		resp, err := http.Post("http://localhost/Statistic/post-statistic.php", "applicaton/json", bytes.NewBuffer(jsonStatistic))
 		if err != nil {
 			log.Println("Ошибка при отправке запроса:", err)
 			return
@@ -76,6 +78,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		fmt.Println("Зарос успешно отправлен на apache, статус ответа:", resp.Status)
+		fmt.Println(resp.Body)
 	}(fileInfos)
 
 	w.Write(jsonData)
