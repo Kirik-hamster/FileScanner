@@ -3,11 +3,36 @@ body {
     padding:0
 }
 .timePathStatistic {
+    margin: 5px;
     display: flex;
     justify-content: center;
 }
 .time, .currentPath, .statistic {
     flex: 1;
+    padding: 3px;
+   
+}
+
+.currentPath {
+    text-align: center;
+   
+}
+
+.time {
+    text-align: left;
+    border-radius: 1px solid;
+    
+}
+.statistic {
+    text-align: right;
+    
+}
+.statistic a {
+    border-radius: 3px;
+    padding: 3px;
+    width: fit-content;
+    background-color: gray;
+    border: 1px solid;
 }
 /*вывод информаци о файлах*/
 .container {
