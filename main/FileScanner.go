@@ -36,14 +36,16 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error serializing to JSON", http.StatusInternalServerError)
 		return
 	}
-	resp, err := http.Post("http://localhost/Statistic/post-statistic.php", "applicaton/json", bytes.NewBuffer(jsonData))
-	if err != nil {
-		log.Println("Ошибка при отправке запроса:", err)
-		return
-	}
-	defer resp.Body.Close()
+	go func(jsonData []byte) {
+		resp, err := http.Post("http://localhost", "applicaton/json", bytes.NewBuffer(jsonData))
+		if err != nil {
+			log.Println("Ошибка при отправке запроса:", err)
+			return
+		}
+		defer resp.Body.Close()
 
-	fmt.Println("Зарос успешно отправлен, статус ответа:", resp.Status)
+		fmt.Println("Зарос успешно отправлен, статус ответа:", resp.Status)
+	}(jsonData)
 
 	w.Write(jsonData)
 
