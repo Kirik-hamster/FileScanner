@@ -15,7 +15,7 @@ body {
 
 .currentPath {
     text-align: center;
-   
+    word-break: break-all;
 }
 
 .time {

@@ -78,7 +78,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		fmt.Println("Зарос успешно отправлен на apache, статус ответа:", resp.Status)
-		fmt.Println(resp.Body)
+
 	}(fileInfos)
 
 	w.Write(jsonData)
