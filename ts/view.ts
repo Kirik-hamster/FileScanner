@@ -1,5 +1,5 @@
 import { fileInfoClick } from './controller';
-let curPath: string = "/home";
+let curPath: string = "/";
 function UpdateDOM(dataInfo:any, basePath:string) {
     if (dataInfo === undefined) {
         console.error("JSON данных не найден");

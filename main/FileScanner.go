@@ -64,7 +64,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fmt.Printf("%v", Statistic)
+		fmt.Printf("%v\n", Statistic)
 		resp, err := http.Post("http://localhost/Statistic/post-statistic.php", "applicaton/json", bytes.NewBuffer(jsonStatistic))
 		if err != nil {
 			log.Println("Ошибка при отправке запроса:", err)
@@ -136,7 +136,6 @@ func main() {
 	mux.HandleFunc("/files/", filesHandler)
 	mux.HandleFunc("/", htmlHandler)
 	mux.Handle("/ui/", http.StripPrefix("/ui/", http.FileServer(http.Dir("../ui"))))
-
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", port),
 		Handler: mux,
