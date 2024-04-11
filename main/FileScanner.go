@@ -15,6 +15,9 @@ import (
 	"time"
 )
 
+var port int        //порт сервера
+var basePath string //базовый путь
+
 // хранит инвормацию для таблицы стаистики в mysql
 type StatisticInfo struct {
 	Path        string //путь к файлц или деректории
@@ -31,7 +34,7 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 	root := r.URL.Query().Get("root")
 	sort := r.URL.Query().Get("sort")
 	if root == "" {
-		root = "/home"
+		root = basePath
 	}
 	fileInfos, err := scanner.FileScanner(root, sort)
 	if err != nil {
@@ -127,7 +130,8 @@ func main() {
 		log.Fatalf("Error: %v\n", err)
 	}
 	serverConfig := config["server"].(map[string]interface{})
-	port := int(serverConfig["port"].(float64))
+	port = int(serverConfig["port"].(float64))
+	basePath = fmt.Sprintf("%s", serverConfig["basePath"])
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

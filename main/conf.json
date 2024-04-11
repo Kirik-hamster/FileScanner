@@ -1,5 +1,6 @@
 {
     "server": {
-        "port" : 9015
+        "port" : 9015,
+        "basePath": "/home"
     }
 }
