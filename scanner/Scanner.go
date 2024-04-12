@@ -38,9 +38,11 @@ func (f FileInfo) string() string {
 
 // хранит инвормацию о ткущем файле или директории и время выполенения программы
 type Info struct {
-	FilesInfos []FileInfo
-	Time       int64
-	BasePath   string
+	FilesInfos    []FileInfo
+	RootInfo      FileInfo
+	Time          int64
+	BasePath      string
+	StatisticLink string
 }
 
 // fileScanner сканирует переданный путь root и выводит содржимое сортируя
@@ -51,6 +53,7 @@ func FileScanner(root string, sortType string) (Info, error) {
 	var fileInfos []FileInfo
 	var wg sync.WaitGroup
 	var mu sync.Mutex
+	var RootInfo FileInfo
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -61,6 +64,22 @@ func FileScanner(root string, sortType string) (Info, error) {
 		if err != nil {
 			fmt.Printf("Ошибка при чтении директории: %v\n", err)
 			return err
+		}
+
+		if root == path {
+			fmt.Println(path)
+			size, err := dirSize(path)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "Error calculating directory root size:", err)
+
+			}
+
+			RootInfo.Name = info.Name()
+
+			RootInfo.SizeInt64 = size
+			RootInfo.IsDir = strconv.FormatBool(info.IsDir())
+			RootInfo.IsRoot = path == root
+			RootInfo.Size = formatSize(RootInfo.SizeInt64)
 		}
 
 		for _, file := range files {
@@ -133,9 +152,11 @@ func FileScanner(root string, sortType string) (Info, error) {
 	elapsed := time.Since(start)
 	fmt.Printf("\nProgram execution time: %s\n", elapsed)
 	Info := Info{
-		FilesInfos: fileInfos,
-		Time:       elapsed.Nanoseconds(),
-		BasePath:   "",
+		FilesInfos:    fileInfos,
+		RootInfo:      RootInfo,
+		Time:          elapsed.Nanoseconds(),
+		BasePath:      "",
+		StatisticLink: "",
 	}
 
 	return Info, nil

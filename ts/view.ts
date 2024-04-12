@@ -1,6 +1,7 @@
 import { fileInfoClick } from './controller';
 
 enum Classes {
+    statisticLink = "link",
     currenPath = "currenPath",
     infoContainer = "container",
     fileInfos = "fileInfos",
@@ -12,16 +13,21 @@ enum Classes {
     rootType = "rootType",
     rootName = "rootName",
     rootSize = "rootSize"
-} 
+}
 enum Ids {
     info = "info",
 }
 
 let curPath: string = "/";
+// UpdateDOM отрисовывает список вложеных дирекорий и папок
 function UpdateDOM(dataInfo:any, basePath:string) {
     if (dataInfo === undefined) {
         console.error("JSON данных не найден");
         return
+    }
+    const statisticLink: HTMLElement | null = document.querySelector(`.${Classes.statisticLink}`);
+    if (statisticLink instanceof HTMLAnchorElement) {
+        statisticLink.href = dataInfo;
     }
     const currentPath: HTMLDivElement | null = document.querySelector(`.${Classes.currenPath}`);
     if (currentPath != null) {
@@ -40,7 +46,7 @@ function UpdateDOM(dataInfo:any, basePath:string) {
     if (time != null) {
         time.innerText = formatTime(dataInfo.Time);
     }
-    for (let i = 0; i < data.length; i++) {
+    data.forEach((_: string, i: number) => {
         const fileInfos: HTMLDivElement =  document.createElement("div");
         fileInfos.className = Classes.fileInfos;
 
@@ -77,9 +83,10 @@ function UpdateDOM(dataInfo:any, basePath:string) {
             await fileInfoClick(fileInfo, basePath)
 
         });
-    }
-}
+    });
 
+}
+// formatTime форматирует время из наносекунт в микро/мили/секунды
 function formatTime(nanoseconds: number): string {
     let time;
     let unit;

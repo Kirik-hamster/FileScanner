@@ -1,6 +1,8 @@
 {
     "server": {
         "port" : 9015,
-        "basePath": "/home"
+        "basePath": "/home",
+        "StatServer": "http://localhost/Statistic/post-statistic.php",
+        "stat": "http://localhost/Statistic"
     }
 }

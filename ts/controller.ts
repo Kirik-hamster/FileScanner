@@ -1,9 +1,9 @@
-import { SentGet } from "./model";
+import { SendGet } from "./model";
 import { UpdateDOM, curPath } from "./view";
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-    const dataInfo: any = await SentGet("", "");
+    const dataInfo: any = await SendGet("", "");
     let basePath: string;
     if (dataInfo !== undefined) {
         basePath = dataInfo.BasePath;
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
-
+// backClick оборобатывает нажатие кнопки "back"
 async function backClick(basePath: string) {
     const sort: string = "";
     if (basePath !== "/home") {
@@ -28,14 +28,14 @@ async function backClick(basePath: string) {
         if (arrRoot[arrRoot.length-1] === "") arrRoot.pop();
         arrRoot.pop();
         basePath = arrRoot.join("/");
-        const dataInfo: any = await SentGet(basePath, sort);
+        const dataInfo: any = await SendGet(basePath, sort);
         UpdateDOM(dataInfo, basePath);
     } else {
-        const dataInfo = await SentGet(basePath, sort);
+        const dataInfo = await SendGet(basePath, sort);
         UpdateDOM(dataInfo, basePath);
     }
 }
-
+// fileInfoClick обрабатывает нажатие на дректорию или файл из списка содержимого директории
 async function fileInfoClick(fileInfo: any, basePath: string) {
     const fileInfos: any = fileInfo;
     const name: HTMLBodyElement | null = fileInfos.querySelector(".name");
@@ -44,10 +44,10 @@ async function fileInfoClick(fileInfo: any, basePath: string) {
     if (name != null) {
         if (basePath !== "/" + name.innerText) {
             basePath += "/" + name.innerText;
-            const dataInfo = await SentGet(basePath, sort);
+            const dataInfo = await SendGet(basePath, sort);
             UpdateDOM(dataInfo, basePath);
         } else {
-            const dataInfo = await SentGet(basePath, sort);
+            const dataInfo = await SendGet(basePath, sort);
             UpdateDOM(dataInfo, basePath);
         }
     }

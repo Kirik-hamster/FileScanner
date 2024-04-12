@@ -15,8 +15,10 @@ import (
 	"time"
 )
 
-var port int        //порт сервера
-var basePath string //базовый путь
+var port int          //порт сервера
+var basePath string   //базовый путь
+var StatServer string //ссылка на статистику
+var Stat string       //ссылка на статичкику для верстки
 
 // хранит инвормацию для таблицы стаистики в mysql
 type StatisticInfo struct {
@@ -24,7 +26,6 @@ type StatisticInfo struct {
 	SizeInt64   int64  //размер файла или директории в байтах
 	Size        string //размер файла отформатированный
 	ElapsedTime int64  //время выполнения
-	Date        string //дата выолнения
 }
 
 // filesHandler handles HTTP requests for the root path.
@@ -42,25 +43,22 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fileInfos.BasePath = root
+	fileInfos.StatisticLink = Stat
 
 	jsonData, err := json.Marshal(fileInfos)
 	if err != nil {
 		http.Error(w, "Error serializing to JSON", http.StatusInternalServerError)
 		return
 	}
+	//горутина отправляет данные статистики
 	go func(fileInfos scanner.Info) {
-		var Statistic StatisticInfo
-		for i := range fileInfos.FilesInfos {
-			if fileInfos.FilesInfos[i].IsRoot {
-				Statistic = StatisticInfo{
-					Path:        fileInfos.BasePath,
-					SizeInt64:   fileInfos.FilesInfos[i].SizeInt64,
-					Size:        fileInfos.FilesInfos[i].Size,
-					ElapsedTime: fileInfos.Time,
-					Date:        time.Now().Format("2006-01-02 15:04:05"),
-				}
-			}
+		var Statistic StatisticInfo = StatisticInfo{
+			Path:        fileInfos.BasePath,
+			SizeInt64:   fileInfos.RootInfo.SizeInt64,
+			Size:        fileInfos.RootInfo.Size,
+			ElapsedTime: fileInfos.Time,
 		}
+
 		jsonStatistic, err := json.Marshal(Statistic)
 		if err != nil {
 			http.Error(w, "Error serializing to JSON", http.StatusInternalServerError)
@@ -132,6 +130,8 @@ func main() {
 	serverConfig := config["server"].(map[string]interface{})
 	port = int(serverConfig["port"].(float64))
 	basePath = fmt.Sprintf("%s", serverConfig["basePath"])
+	StatServer = fmt.Sprintf("%s", serverConfig["StatServer"])
+	Stat = fmt.Sprintf("%s", serverConfig["Stat"])
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
