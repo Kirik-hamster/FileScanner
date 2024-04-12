@@ -1,16 +1,18 @@
 const path = require('path');
 const { merge } = require('webpack-merge');
 const TerserPlugin = require('terser-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const baseConfig = {
     mode: 'development',
     entry: {
-        index: './ts/index.ts',
+        index: path.join(__dirname, 'ts', 'index.ts'),
     },
     output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, 'ui/scriptsFromTs/'),
+        filename: 'bundle.[chunkhash].js',
+        path: path.join(__dirname, 'ui', 'scriptsFromTs'),
     },
     module: {
         rules: [
@@ -29,8 +31,15 @@ const baseConfig = {
         extensions: ['.tsx', '.ts', '.js'],
     },
     plugins: [
+        new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
             filename: 'style.css',
+        }),
+        new HtmlWebpackPlugin({
+            template: path.join(__dirname, 'ui', 'index.html'),
+            filename: path.join(__dirname, 'html', 'index.html'),
+            inject: 'body',
+            scriptLoading: 'defer',
         }),
     ],
 };

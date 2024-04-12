@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "clean-webpack-plugin": "4.0.0",
     "html-webpack-plugin": "5.6.0",
     "mini-css-extract-plugin": "2.8.1",
     "ts-loader": "9.5.1",
@@ -53,7 +54,8 @@
     "wrappy": "1.0.2"
   },
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "lint": "tslint -c tslint.json -p tsconfig.json 'ts/*.ts'"
   },
   "keywords": [],
   "author": "",
