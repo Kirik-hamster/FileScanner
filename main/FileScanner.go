@@ -65,7 +65,6 @@ func filesHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fmt.Printf("%v\n", Statistic)
 		resp, err := http.Post("http://localhost/Statistic/post-statistic.php", "applicaton/json", bytes.NewBuffer(jsonStatistic))
 		if err != nil {
 			log.Println("Ошибка при отправке запроса:", err)
