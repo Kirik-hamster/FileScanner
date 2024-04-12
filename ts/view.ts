@@ -18,16 +18,33 @@ enum Ids {
     info = "info",
 }
 
+interface FileInfo {
+    IsDir: string,
+    IsRoot: boolean,
+    Name: string,
+    Size: string,
+    SizeInt64: number
+}
+
+interface DataInfo {
+    BasePath: string,
+    FilesInfos: FileInfo[],
+    RootInfo: FileInfo,
+    Statistic: string,
+    Time: number
+}
+
 let curPath: string = "/";
 // UpdateDOM отрисовывает список вложеных дирекорий и папок
-function UpdateDOM(dataInfo:any, basePath:string) {
+function UpdateDOM(dataInfo:DataInfo, basePath:string) {
+
     if (dataInfo === undefined) {
         console.error("JSON данных не найден");
         return
     }
     const statisticLink: HTMLElement | null = document.querySelector(`.${Classes.statisticLink}`);
     if (statisticLink instanceof HTMLAnchorElement) {
-        statisticLink.href = dataInfo;
+        statisticLink.href = dataInfo.Statistic;
     }
     const currentPath: HTMLDivElement | null = document.querySelector(`.${Classes.currenPath}`);
     if (currentPath != null) {
@@ -38,7 +55,7 @@ function UpdateDOM(dataInfo:any, basePath:string) {
     if (container != null) {
         container.innerHTML = "";
     }
-    const data: any = dataInfo.FilesInfos;
+    const data: FileInfo[] = dataInfo.FilesInfos;
     if (data === undefined) {
         console.error("Информация о файлах и папках не найдена из JSON");
     }
@@ -46,7 +63,7 @@ function UpdateDOM(dataInfo:any, basePath:string) {
     if (time != null) {
         time.innerText = formatTime(dataInfo.Time);
     }
-    data.forEach((_: string, i: number) => {
+    data.forEach((_: FileInfo, i: number) => {
         const fileInfos: HTMLDivElement =  document.createElement("div");
         fileInfos.className = Classes.fileInfos;
 

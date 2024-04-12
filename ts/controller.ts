@@ -1,9 +1,25 @@
 import { SendGet } from "./model";
 import { UpdateDOM, curPath } from "./view";
 
+interface FileInfo {
+    IsDir: string,
+    IsRoot: boolean,
+    Name: string,
+    Size: string,
+    SizeInt64: number
+}
+
+interface DataInfo {
+    BasePath: string,
+    FilesInfos: FileInfo[],
+    RootInfo: FileInfo,
+    Statistic: string,
+    Time: number
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
 
-    const dataInfo: any = await SendGet("", "");
+    const dataInfo: DataInfo = await SendGet("", "");
     let basePath: string;
     if (dataInfo !== undefined) {
         basePath = dataInfo.BasePath;
@@ -28,7 +44,7 @@ async function backClick(basePath: string) {
         if (arrRoot[arrRoot.length-1] === "") arrRoot.pop();
         arrRoot.pop();
         basePath = arrRoot.join("/");
-        const dataInfo: any = await SendGet(basePath, sort);
+        const dataInfo: DataInfo = await SendGet(basePath, sort);
         UpdateDOM(dataInfo, basePath);
     } else {
         const dataInfo = await SendGet(basePath, sort);
@@ -36,8 +52,8 @@ async function backClick(basePath: string) {
     }
 }
 // fileInfoClick обрабатывает нажатие на дректорию или файл из списка содержимого директории
-async function fileInfoClick(fileInfo: any, basePath: string) {
-    const fileInfos: any = fileInfo;
+async function fileInfoClick(fileInfo: HTMLDivElement, basePath: string) {
+    const fileInfos: HTMLDivElement = fileInfo;
     const name: HTMLBodyElement | null = fileInfos.querySelector(".name");
     const sort: string = "";
 

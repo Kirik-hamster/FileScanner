@@ -65,22 +65,23 @@ func FileScanner(root string, sortType string) (Info, error) {
 			fmt.Printf("Ошибка при чтении директории: %v\n", err)
 			return err
 		}
+		go func() {
+			if root == path {
+				fmt.Println(path)
+				size, err := dirSize(path)
+				if err != nil {
+					fmt.Fprintln(os.Stderr, "Error calculating directory root size:", err)
 
-		if root == path {
-			fmt.Println(path)
-			size, err := dirSize(path)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "Error calculating directory root size:", err)
+				}
 
+				RootInfo.Name = info.Name()
+
+				RootInfo.SizeInt64 = size
+				RootInfo.IsDir = strconv.FormatBool(info.IsDir())
+				RootInfo.IsRoot = path == root
+				RootInfo.Size = formatSize(RootInfo.SizeInt64)
 			}
-
-			RootInfo.Name = info.Name()
-
-			RootInfo.SizeInt64 = size
-			RootInfo.IsDir = strconv.FormatBool(info.IsDir())
-			RootInfo.IsRoot = path == root
-			RootInfo.Size = formatSize(RootInfo.SizeInt64)
-		}
+		}()
 
 		for _, file := range files {
 			fileInfo, err := file.Info()
