@@ -57,37 +57,40 @@ func FileScanner(root string, sortType string) (Info, error) {
 			return err
 		}
 
-		relPath, err := filepath.Rel(root, path)
+		files, err := os.ReadDir(root)
 		if err != nil {
+			fmt.Printf("Ошибка при чтении директории: %v\n", err)
 			return err
 		}
 
-		currentDepth := strings.Count(relPath, string(os.PathSeparator))
-		if currentDepth > 0 {
-			return filepath.SkipDir
+		for _, file := range files {
+			fileInfo, err := file.Info()
+			if err != nil {
+				fmt.Printf("Ошибка при получении информации о файле: %v\n", err)
+				continue
+			}
+			wg.Add(1)
+			go func(fileName string, fileInfo os.FileInfo) {
+				defer wg.Done()
+				size, err := dirSize(filepath.Join(root, fileName))
+				if err != nil {
+					fmt.Fprintln(os.Stderr, "Error calculating directory size:", err)
+					return
+				}
+				mu.Lock()
+				defer mu.Unlock()
+				fileInfos = append(fileInfos, FileInfo{
+					Name:      fileName,
+					Size:      strconv.FormatInt(size, 10),
+					SizeInt64: size,
+					IsDir:     strconv.FormatBool(info.IsDir()),
+					IsRoot:    path == root,
+				})
+
+			}(file.Name(), fileInfo)
 		}
 
-		wg.Add(1)
-		go func(dirPath string) {
-			defer wg.Done()
-			size, err := dirSize(dirPath)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "Error calculating directory size:", err)
-				return
-			}
-			mu.Lock()
-			defer mu.Unlock()
-			fileInfos = append(fileInfos, FileInfo{
-				Name:      info.Name(),
-				Size:      strconv.FormatInt(size-4096, 10),
-				SizeInt64: size - 4096,
-				IsDir:     strconv.FormatBool(info.IsDir()),
-				IsRoot:    path == root,
-			})
-
-		}(path)
-
-		return nil
+		return filepath.SkipDir
 	})
 
 	if err != nil {

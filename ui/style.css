@@ -76,24 +76,6 @@ body {
     background-color: brown;
 }
 
-/*корневая папка*/ 
-.root {
-    border: 1px solid;
-    user-select: none;
-    background-color:coral; 
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    box-sizing: border-box;
-    align-items: center;
-    padding: 10px;
-}
-.root .type, .root .name, .root .size {
-    text-align: center;
-    border-radius: 3px;
-    background-color:chocolate ;
-    
-}
 /*кнопка назад*/
 .back {
     user-select: none;

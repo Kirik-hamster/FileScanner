@@ -1,16 +1,34 @@
 import { fileInfoClick } from './controller';
+
+enum Classes {
+    currenPath = "currenPath",
+    infoContainer = "container",
+    fileInfos = "fileInfos",
+    fileInfo = "fileInfo",
+    type = "type",
+    name = "name",
+    size = "size",
+    root = "root",
+    rootType = "rootType",
+    rootName = "rootName",
+    rootSize = "rootSize"
+} 
+enum Ids {
+    info = "info",
+}
+
 let curPath: string = "/";
 function UpdateDOM(dataInfo:any, basePath:string) {
     if (dataInfo === undefined) {
         console.error("JSON данных не найден");
         return
     }
-    const currentPath: HTMLDivElement | null = document.querySelector(".currenPath");
+    const currentPath: HTMLDivElement | null = document.querySelector(`.${Classes.currenPath}`);
     if (currentPath != null) {
         currentPath.innerText = basePath;
         curPath = currentPath.innerText;
     }
-    const container: HTMLDivElement | null = document.querySelector(".container");
+    const container: HTMLDivElement | null = document.querySelector(`.${Classes.infoContainer}`);
     if (container != null) {
         container.innerHTML = "";
     }
@@ -24,24 +42,24 @@ function UpdateDOM(dataInfo:any, basePath:string) {
     }
     for (let i = 0; i < data.length; i++) {
         const fileInfos: HTMLDivElement =  document.createElement("div");
-        fileInfos.className = "fileInfos";
+        fileInfos.className = Classes.fileInfos;
 
         const fileInfo: HTMLDivElement = document.createElement("div");
-        fileInfo.className = "fileInfo";
+        fileInfo.className = Classes.fileInfo;
 
         const type: HTMLDivElement = document.createElement("div");
-        type.className = "type";
-        type.id = "info";
+        type.className = Classes.type;
+        type.id = Ids.info;
         type.innerHTML = data[i].IsDir;
 
         const name: HTMLDivElement = document.createElement("div");
-        name.className = "name";
-        name.id = "info";
+        name.className = Classes.name;
+        name.id = Ids.info;
         name.innerHTML = data[i].Name;
 
         const size: HTMLDivElement = document.createElement("div");
-        size.className = "size";
-        size.id = "info";
+        size.className = Classes.size;
+        size.id = Ids.info;
         size.innerHTML = data[i].Size;
 
         fileInfo.appendChild(type);
@@ -53,12 +71,7 @@ function UpdateDOM(dataInfo:any, basePath:string) {
         if (container != null) {
             container.appendChild(fileInfos);
         }
-        if (data[i].IsRoot) {
-            fileInfo.className = "root";
-            type.className = "rootType";
-            name.className = "rootName";
-            size.className = "rootSize";
-        }
+
         fileInfo.addEventListener('click', async () => {
 
             await fileInfoClick(fileInfo, basePath)
